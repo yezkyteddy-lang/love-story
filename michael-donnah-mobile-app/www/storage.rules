@@ -1,0 +1,28 @@
+// Firebase Storage security rules for the Michael × Donnah private photo vault.
+// Replace the two placeholder emails below with the real Firebase Auth emails.
+
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isAllowedUser() {
+      return request.auth != null
+        && request.auth.token.email != null
+        && request.auth.token.email in [
+          'MICHAEL_EMAIL_HERE',
+          'DONNAH_EMAIL_HERE'
+        ];
+    }
+
+    match /couple-memories/{uid}/{fileName=**} {
+      allow read: if isAllowedUser();
+      allow write: if isAllowedUser() && request.auth.uid == uid
+        && request.resource.size < 12 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+      allow delete: if isAllowedUser() && request.auth.uid == uid;
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "michael-donnah-love-universe-mobile",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Michael and Donnah Love Universe as an Android/iOS app using Capacitor.",
+  "scripts": {
+    "sync": "npx cap sync",
+    "add:android": "npx cap add android",
+    "add:ios": "npx cap add ios",
+    "open:android": "npx cap open android",
+    "open:ios": "npx cap open ios",
+    "build:web": "echo Static web assets are already in www/"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/core": "^8.0.0",
+    "@capacitor/ios": "^8.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.0.0"
+  }
+}

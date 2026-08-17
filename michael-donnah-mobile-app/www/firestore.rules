@@ -1,0 +1,32 @@
+// Firestore security rules for the Michael × Donnah private photo vault.
+// Replace the two placeholder emails below with the real Firebase Auth emails.
+// Keep this file private if you do not want the email addresses visible in your repo.
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAllowedUser() {
+      return request.auth != null
+        && request.auth.token.email != null
+        && request.auth.token.email in [
+          'MICHAEL_EMAIL_HERE',
+          'DONNAH_EMAIL_HERE'
+        ];
+    }
+
+    match /coupleMemories/{memoryId} {
+      allow read: if isAllowedUser();
+      allow create: if isAllowedUser()
+        && request.resource.data.uploadedBy == request.auth.uid;
+      allow update: if isAllowedUser()
+        && resource.data.uploadedBy == request.auth.uid
+        && request.resource.data.uploadedBy == request.auth.uid;
+      allow delete: if isAllowedUser()
+        && resource.data.uploadedBy == request.auth.uid;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

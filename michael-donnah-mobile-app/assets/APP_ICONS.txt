@@ -1,0 +1,1 @@
+Optional: replace the default Android/iOS icons in the native platform projects after `npx cap add android` / `npx cap add ios`.

@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Michael ♥ Donnah</title>
+  <meta name="description" content="A private romantic monthsary website for Michael and Donnah." />
+  <meta name="theme-color" content="#ff7db8" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="loader" class="loader" aria-live="polite">
+    <div class="loader-core">
+      <div class="heart-glow"></div>
+      <div class="loader-heart">♥</div>
+      <div class="loader-name">
+        Michael Jet Maulas <span>♥</span> Donnah Atasha A. Batchar
+      </div>
+      <div class="loader-progress">
+        <div class="loader-bar"></div>
+      </div>
+      <p class="loader-text">Preparing a little piece of our love...</p>
+      <p class="loader-finish">Michael ♥ Donnah</p>
+    </div>
+    <div class="floating-hearts" aria-hidden="true">
+      <span>♥</span><span>♥</span><span>♥</span><span>♥</span><span>♥</span>
+      <span>♥</span><span>♥</span><span>♥</span>
+    </div>
+  </div>
+
+  <div id="pageShell" class="page-shell">
+    <header class="topbar glass">
+      <div class="brand-wrap">
+        <div class="brand-mark" aria-label="Love logo">♥</div>
+        <div class="brand-copy">
+          <div class="brand-title">♡ OUR LITTLE LOVE STORY ♡</div>
+          <div class="brand-subtitle">MICHAEL × DONNAH</div>
+        </div>
+      </div>
+
+      <div class="topbar-actions">
+        <button id="mobileNavToggle" class="mobile-menu-btn" type="button" aria-label="Toggle navigation menu" aria-expanded="false">
+          ☰ MENU
+        </button>
+
+        <button id="nightModeToggle" class="ghost-btn" type="button">
+          🌙 LOVE NIGHT MODE
+        </button>
+
+        <button id="notificationsToggle" class="icon-btn" type="button" aria-label="Open love notifications">🔔</button>
+
+        <div class="philippine-clock glass" aria-live="polite">
+          <div class="clock-label">🇵🇭 PHILIPPINES TIME</div>
+          <div id="philippinesTime" class="clock-time">--:--</div>
+          <div id="philippinesDate" class="clock-date">Sunday, August 16, 2026</div>
+        </div>
+      </div>
+    </header>
+
+    <nav class="main-nav glass" aria-label="Main navigation">
+      <button class="nav-close" type="button" aria-label="Close menu">✕</button>
+      <a href="#home">♡ HOME</a>
+      <a href="#monthsaries">♡ MONTHSARIES</a>
+      <a href="#letters">♡ LETTERS</a>
+      <a href="#replies">♡ HER REPLIES</a>
+      <a href="#journey">♡ OUR JOURNEY</a>
+      <a href="#memories">♡ MEMORIES</a>
+      <a href="#love-wall">♡ LOVE WALL</a>
+      <a href="#settings">♡ SETTINGS</a>
+    </nav>
+
+    <div class="page-grid">
+      <aside class="timeline-panel glass" id="monthsaries">
+        <div class="panel-header">♡ MONTHSARY TIMELINE ♡</div>
+        <div id="timelineList" class="timeline-list"></div>
+      </aside>
+
+      <main class="main-content">
+        <section id="home" class="hero glass">
+          <div class="hero-copy">
+            <div class="eyebrow">♡ OUR LITTLE LOVE STORY ♡</div>
+            <h1>Michael × Donnah</h1>
+            <p class="small-note">Together Since August 7, 2026</p>
+            <p class="hero-line">Every month. Every letter. Every memory. One story.</p>
+
+            <div class="stats-row">
+              <div class="mini-stat">
+                <span class="mini-label">Together Since</span>
+                <strong id="sinceDateText">August 7, 2026</strong>
+              </div>
+              <div class="mini-stat">
+                <span class="mini-label">Love Level</span>
+                <strong>∞</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero-side">
+            <div class="love-meter glass">
+              <div class="meter-head">LOVE LEVEL: ∞</div>
+              <div class="meter-track"><div class="meter-fill"></div></div>
+            </div>
+
+            <div class="love-counter glass">
+              <div class="counter-title">Every second with you matters.</div>
+              <div id="loveCounter" class="counter-time">0 Months 0 Days</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="dashboard-grid">
+          <div class="glass dashboard-card dashboard-card-feature">
+            <div class="card-title">TOGETHER FOR</div>
+            <div id="relationshipCounter" class="big-counter">0 Months 0 Days</div>
+            <div class="counter-metric-row">
+              <div class="metric-box"><span id="togetherMonths">0</span><small>Months</small></div>
+              <div class="metric-box"><span id="togetherDays">0</span><small>Days</small></div>
+              <div class="metric-box"><span id="togetherHours">0</span><small>Hours</small></div>
+              <div class="metric-box"><span id="togetherMinutes">0</span><small>Minutes</small></div>
+              <div class="metric-box"><span id="togetherSeconds">0</span><small>Seconds</small></div>
+            </div>
+          </div>
+
+          <div class="glass dashboard-card dashboard-card-feature">
+            <div class="card-title">NEXT MONTHSARY</div>
+            <div class="dynamic-date" id="nextMonthsaryText">September 7, 2026</div>
+            <div id="nextMonthsaryCountdown" class="next-month-countdown">--</div>
+            <div class="counter-metric-row compact-row">
+              <div class="metric-box"><span id="monthsaryDays">0</span><small>Days</small></div>
+              <div class="metric-box"><span id="monthsaryHours">0</span><small>Hours</small></div>
+              <div class="metric-box"><span id="monthsaryMinutes">0</span><small>Minutes</small></div>
+              <div class="metric-box"><span id="monthsarySeconds">0</span><small>Seconds</small></div>
+            </div>
+          </div>
+
+          <div class="glass dashboard-card dashboard-card-feature">
+            <div class="card-title">LOVE LEVEL</div>
+            <div class="love-level-display">∞</div>
+            <div class="love-level-text">Infinite</div>
+            <div class="love-pulse" aria-hidden="true">♥ ♥ ♥</div>
+          </div>
+
+          <div class="glass dashboard-card dashboard-card-feature">
+            <div class="card-title">♡ TODAY'S LOVE FOR DONNAH ♡</div>
+            <p id="todayLoveMessage" class="love-message-text">"Another day, another reason to love you."</p>
+            <div class="extra-feature">
+              <div class="feature-label">Today's Heart for Donnah:</div>
+              <span class="heart-token">♥</span>
+            </div>
+            <div class="action-row">
+              <button id="surpriseBtn" class="pink-btn" type="button">✨ SURPRISE ME</button>
+              <button id="secretBtn" class="ghost-btn small" type="button">♡ CLICK ME</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="glass dashboard-card reason-card" id="love-reasons">
+          <div class="card-title">♡ 100 REASONS I LOVE YOU ♡</div>
+          <div id="reasonCard" class="reason-card-body">
+            <div class="reason-number">01 — Your smile</div>
+            <p class="reason-text">Your smile makes everything in my world feel warmer.</p>
+          </div>
+          <div class="reason-controls">
+            <div id="reasonProgress" class="reason-progress">1 / 100</div>
+            <button id="nextReasonBtn" class="pink-btn" type="button">NEXT REASON →</button>
+          </div>
+        </section>
+
+        <section class="glass dashboard-card countdown-card" id="monthsary-countdown-wrap">
+          <div class="card-title">MONTHSARY COUNTDOWN</div>
+          <div class="monthsary-countdown-grid">
+            <div class="countdown-box"><span id="countdownDays" class="num">0</span><span class="label">Days</span></div>
+            <div class="countdown-box"><span id="countdownHours" class="num">0</span><span class="label">Hours</span></div>
+            <div class="countdown-box"><span id="countdownMinutes" class="num">0</span><span class="label">Minutes</span></div>
+            <div class="countdown-box"><span id="countdownSeconds" class="num">0</span><span class="label">Seconds</span></div>
+          </div>
+        </section>
+
+        <section class="glass dashboard-card open-when-card">
+          <div class="card-title">♡ OPEN WHEN... ♡</div>
+          <div id="openWhenList" class="open-when-grid"></div>
+        </section>
+
+        <section class="glass dashboard-card voices-card">
+          <div class="card-title">♡ LOVE STATS ♡</div>
+          <div id="loveStatsGrid" class="stats-grid"></div>
+        </section>
+
+        <section id="letters" class="glass letters-panel">
+          <div class="panel-header">♡ LETTERS ♡</div>
+          <div id="letterContainer"></div>
+        </section>
+
+        <section id="replies" class="glass replies-panel">
+          <div class="panel-header">♡ HER REPLIES ♡</div>
+          <div id="repliesList" class="replies-list"></div>
+        </section>
+
+        <section id="journey" class="glass journey-panel">
+          <div class="panel-header">♡ OUR JOURNEY ♡</div>
+          <div id="journeyList" class="journey-list"></div>
+        </section>
+
+        <section id="memories" class="glass memories-panel">
+          <div class="panel-header">♡ OUR MEMORIES IN MOTION ♡</div>
+
+          <div class="memory-header-row">
+            <div>
+              <div class="memory-title">OUR MEMORIES</div>
+              <div id="photoCountText" class="memory-count">0 PHOTOS</div>
+            </div>
+            <div class="memory-badges"><span>∞ MEMORIES TO COME</span></div>
+          </div>
+
+          <div class="memory-orbit-wrap">
+            <div class="orbital-scene">
+              <div class="orbital-core">
+                <div class="core-heart">♥</div>
+                <div class="core-text">Michael ♥ Donnah</div>
+              </div>
+              <div id="memoryGalaxy" class="memory-galaxy"></div>
+            </div>
+          </div>
+
+          <div class="gallery-controls">
+            <button id="enterUniverseBtn" class="pink-btn" type="button">🌌 ENTER OUR MEMORY UNIVERSE</button>
+            <button id="unlockAllBtn" class="ghost-btn" type="button">💗 REVEAL MEMORY FLOW</button>
+            <button id="surpriseMemoryBtn" class="ghost-btn" type="button">🎞 SURPRISE ME WITH A MEMORY</button>
+          </div>
+
+          <div class="memory-heart-section">
+            <div class="heart-made-title">♡ A HEART MADE OF MEMORIES ♡</div>
+            <p class="heart-memory-note">Shared memories uploaded to <strong>♡ Our Memories</strong> can appear inside this living heart for both of you.</p>
+            <div class="memory-heart" id="memoryHeart" aria-label="Heart made from our shared memories"></div>
+            <div class="heart-upload-bar">
+              <label id="addHeartPhotoLabel" class="pink-btn heart-upload-button" for="heartPhotoFiles">📸 ADD A PHOTO TO OUR HEART</label>
+              <input id="heartPhotoFiles" class="sr-only-file-input" type="file" accept="image/*" multiple />
+              <small>Choose a picture, then it will be saved to <strong>Our Memories</strong> and appear here.</small>
+            </div>
+          </div>
+
+          <div class="horizontal-memory-stream" aria-label="Infinite memory stream">
+            <div class="stream-row row-one" id="streamRowOne"></div>
+            <div class="stream-row row-two" id="streamRowTwo"></div>
+          </div>
+
+          <div class="today-memory glass">
+            <div class="panel-header small-header">♡ TODAY'S MEMORY ♡</div>
+            <div id="todayMemoryCard" class="today-memory-card"></div>
+          </div>
+        </section>
+
+        <section id="private-vault" class="glass private-vault-panel">
+          <div class="panel-header">♡ PRIVATE COUPLE PHOTO VAULT ♡</div>
+          <div class="private-vault-intro">
+            <div>
+              <div class="memory-title">ONLY MICHAEL &amp; DONNAH</div>
+              <p>Upload and keep our memories in three spaces: shared memories, Michael's photos, and Donnah's photos.</p>
+              <p class="vault-sync-help">For the same photos to appear on <strong>another phone</strong>, both of you must sign in to the same Firebase-backed private vault. Local Mode is device-only.</p>
+            </div>
+            <div class="vault-intro-actions">
+              <div id="vaultSecurityBadge" class="vault-badge">🔐 LOCAL MODE</div>
+              <button id="openCloudSetupBtn" class="ghost-btn small" type="button">☁️ CLOUD SETUP</button>
+            </div>
+          </div>
+
+          <div id="vaultAuthBox" class="vault-auth-box">
+            <div class="vault-auth-copy">
+              <strong>Private access</strong>
+              <span id="vaultAuthMessage">Cloud mode lets only your two authorized accounts access the photo vault.</span>
+            </div>
+            <form id="vaultLoginForm" class="vault-login-form" autocomplete="on">
+              <input id="vaultEmail" type="email" autocomplete="email" placeholder="Email" aria-label="Email" />
+              <input id="vaultPassword" type="password" autocomplete="current-password" placeholder="Password" aria-label="Password" />
+              <button class="pink-btn" type="submit">🔐 SIGN IN</button>
+              <button id="vaultCreateAccountBtn" class="ghost-btn" type="button">CREATE ACCOUNT</button>
+              <button id="vaultLogoutBtn" class="ghost-btn hidden" type="button">SIGN OUT</button>
+            </form>
+            <div id="vaultUserStatus" class="vault-user-status" aria-live="polite">Not signed in</div>
+          </div>
+
+          <div id="vaultManager" class="vault-manager hidden">
+            <div id="vaultLocalIdentity" class="vault-local-identity hidden">
+              <label for="vaultLocalPerson">This device is being used by</label>
+              <select id="vaultLocalPerson">
+                <option value="Michael">Michael</option>
+                <option value="Donnah">Donnah</option>
+              </select>
+            </div>
+            <div class="vault-manager-top">
+              <div>
+                <div class="card-title">ADD A NEW MEMORY</div>
+                <div id="vaultSignedInAs" class="vault-signed-in-as"></div>
+              </div>
+              <button id="vaultRefreshBtn" class="ghost-btn small" type="button">↻ REFRESH</button>
+            </div>
+
+            <div class="vault-upload-grid">
+              <label class="vault-field">
+                <span>Album</span>
+                <select id="vaultAlbum">
+                  <option value="shared">♡ Our Shared Memories</option>
+                  <option value="michael">♡ Michael's Photos</option>
+                  <option value="donnah">♡ Donnah's Photos</option>
+                </select>
+              </label>
+              <label class="vault-field">
+                <span>Title</span>
+                <input id="vaultPhotoTitle" type="text" maxlength="100" placeholder="A little moment..." />
+              </label>
+              <label class="vault-field vault-field-wide">
+                <span>Caption</span>
+                <input id="vaultPhotoCaption" type="text" maxlength="240" placeholder="Write what this memory means to us..." />
+              </label>
+              <label class="vault-field vault-field-wide upload-dropzone" for="vaultPhotoFiles">
+                <span>Photos</span>
+                <strong>📸 TAP TO CHOOSE PHOTOS</strong>
+                <small id="vaultPhotoFileLabel">Multiple JPG, PNG, WEBP or HEIC-compatible browser images</small>
+                <input id="vaultPhotoFiles" type="file" accept="image/*" multiple />
+              </label>
+            </div>
+
+            <div class="vault-upload-actions">
+              <button id="vaultUploadBtn" class="pink-btn" type="button">💗 UPLOAD MEMORIES</button>
+              <div id="vaultUploadProgress" class="vault-progress-wrap hidden" aria-live="polite">
+                <div class="vault-progress-track"><div id="vaultProgressBar" class="vault-progress-bar"></div></div>
+                <span id="vaultProgressText">Uploading...</span>
+              </div>
+            </div>
+
+            <div class="vault-tabs" role="tablist" aria-label="Private photo albums">
+              <button class="vault-tab active" type="button" data-vault-filter="all">♡ ALL</button>
+              <button class="vault-tab" type="button" data-vault-filter="shared">♡ OUR MEMORIES</button>
+              <button class="vault-tab" type="button" data-vault-filter="michael">♡ MICHAEL</button>
+              <button class="vault-tab" type="button" data-vault-filter="donnah">♡ DONNAH</button>
+            </div>
+
+            <div id="vaultPhotoGrid" class="vault-photo-grid"></div>
+          </div>
+
+          <div id="vaultCloudStatus" class="vault-cloud-status hidden" aria-live="polite"></div>
+
+          <div id="vaultLocalNotice" class="vault-local-notice hidden">
+            <strong>Private cloud sync is not configured yet.</strong>
+            <span>This browser-only fallback keeps uploads on this device. To let Michael and Donnah see the same private photos on different devices, configure Firebase using the included setup files.</span>
+          </div>
+        </section>
+
+        <section id="love-wall" class="glass love-wall">
+          <div class="panel-header">♡ OUR LITTLE UNIVERSE ♡</div>
+          <div class="memory-form">
+            <input id="memoryTitle" type="text" maxlength="120" placeholder="Favorite memory" />
+            <textarea id="memoryText" rows="3" maxlength="1000" placeholder="Write a sweet note..."></textarea>
+            <button id="addMemoryBtn" class="pink-btn" type="button">Add to our universe</button>
+          </div>
+          <div id="loveWallNotes" class="love-wall-notes"></div>
+        </section>
+      </main>
+    </div>
+
+    <footer id="settings" class="footer glass">
+      <div>Michael Jet Maulas ♥ Donnah Atasha A. Batchar</div>
+      <small>Local Mode keeps photos on this device. Private Cloud Mode uses Firebase so Michael and Donnah can see the same memories across phones, tablets, and computers.</small>
+    </footer>
+  </div>
+
+  <div id="notificationCenter" class="notification-center hidden" aria-live="polite">
+    <div class="notification-header">
+      <span>♡ LOVE NOTIFICATIONS ♡</span>
+      <button id="closeNotifications" type="button" aria-label="Close notifications">✕</button>
+    </div>
+    <div id="notificationList" class="notification-list"></div>
+  </div>
+
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <div id="viewer" class="lightbox hidden" aria-modal="true" role="dialog" aria-label="Memory viewer">
+    <div class="lightbox-backdrop"></div>
+    <div class="lightbox-panel">
+      <button class="close-lightbox" type="button">♡ CLOSE</button>
+      <div class="lightbox-image-wrap">
+        <img id="lightboxImg" src="" alt="Love memory" />
+      </div>
+      <div class="lightbox-caption" id="lightboxCaption"></div>
+      <div class="lightbox-controls">
+        <button id="prevMemoryBtn" type="button">♡ PREVIOUS MEMORY</button>
+        <button id="nextMemoryBtn" type="button">♡ NEXT MEMORY</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="cloudSetupModal" class="cloud-setup-modal hidden" role="dialog" aria-modal="true" aria-labelledby="cloudSetupTitle">
+    <div class="cloud-setup-backdrop" data-cloud-close></div>
+    <div class="cloud-setup-panel glass">
+      <div class="cloud-setup-header">
+        <div>
+          <div class="panel-header">♡ PRIVATE CLOUD SETUP ♡</div>
+          <h2 id="cloudSetupTitle">Make Michael &amp; Donnah see the same memories on every device</h2>
+          <p>Configure Firebase once, then both of you can sign in with your own authorized email and see shared uploads in real time.</p>
+        </div>
+        <button class="icon-btn" type="button" data-cloud-close aria-label="Close cloud setup">✕</button>
+      </div>
+
+      <div class="cloud-setup-grid">
+        <label>Michael email
+          <input id="cloudMichaelEmail" type="email" placeholder="michael@example.com" autocomplete="email" />
+        </label>
+        <label>Donnah email
+          <input id="cloudDonnahEmail" type="email" placeholder="donnah@example.com" autocomplete="email" />
+        </label>
+        <label class="cloud-wide">Firebase Web App Config (JSON)
+          <textarea id="cloudFirebaseJson" rows="9" spellcheck="false" placeholder='{"apiKey":"...","authDomain":"...","projectId":"...","storageBucket":"...","messagingSenderId":"...","appId":"..."}'></textarea>
+        </label>
+      </div>
+
+      <div class="cloud-setup-steps">
+        <strong>Quick setup</strong>
+        <ol>
+          <li>Firebase Console → create a project → add a Web App.</li>
+          <li>Enable <b>Authentication → Email/Password</b>, Firestore Database, and Storage.</li>
+          <li>Paste the Web App config above and enter the exact two email addresses you will use.</li>
+          <li>Publish the included <code>firestore.rules</code> and <code>storage.rules</code> to your Firebase project.</li>
+          <li>Reload the site and sign in on both phones. New photos will then sync live.</li>
+        </ol>
+      </div>
+
+      <div class="cloud-setup-actions">
+        <button id="saveCloudSetupBtn" class="pink-btn" type="button">☁️ SAVE &amp; ENABLE CLOUD</button>
+        <button id="clearCloudSetupBtn" class="ghost-btn" type="button">RESET CLOUD SETTINGS</button>
+      </div>
+      <small class="cloud-setup-note">Your Firebase Web App config is okay to place in a static site. The actual privacy is enforced by Firebase Authentication and Security Rules.</small>
+    </div>
+  </div>
+
+  <script src="firebase-config.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
