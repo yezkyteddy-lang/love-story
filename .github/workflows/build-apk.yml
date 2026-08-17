@@ -39,7 +39,7 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v4
 
-      - name: Create Capacitor Android wrapper
+      - name: Create temporary Capacitor Android project
         shell: bash
         run: |
           set -euo pipefail
@@ -58,89 +58,63 @@ jobs:
           cd mobile-build
 
           npm init -y
+
+          # Install Capacitor plus TypeScript because Capacitor may discover
+          # a TypeScript config file in the project or its copied web source.
           npm install @capacitor/core @capacitor/android
-          npm install --save-dev @capacitor/cli
+          npm install --save-dev @capacitor/cli typescript
 
-          cat > capacitor.config.ts <<'EOF'
-          import type { CapacitorConfig } from "@capacitor/cli";
+          # Remove any copied Capacitor TypeScript config from the web source
+          # and use an explicit JSON config for this generated wrapper.
+          rm -f capacitor.config.ts
 
-          const config: CapacitorConfig = {
-            appId: "com.michael.donnah.lovestory",
-            appName: "Michael & Donnah Love Story",
-            webDir: "www"
-          };
-
-          export default config;
+          cat > capacitor.config.json <<'EOF'
+          {
+            "appId": "com.michael.donnah.lovestory",
+            "appName": "Michael & Donnah Love Story",
+            "webDir": "www"
+          }
           EOF
 
           npx cap add android
           npx cap sync android
 
-      - name: Configure APK ABI outputs
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          python3 - <<'PY'
-          from pathlib import Path
-
-          gradle_file = Path("mobile-build/android/app/build.gradle")
-          text = gradle_file.read_text(encoding="utf-8")
-
-          abi_block = """
-          android {
-              splits {
-                  abi {
-                      enable true
-                      reset()
-                      include "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
-                      universalApk true
-                  }
-              }
-          }
-          """
-
-          if "splits {" not in text:
-              gradle_file.write_text(
-                  text.rstrip() + "\n\n" + abi_block.strip() + "\n",
-                  encoding="utf-8"
-              )
-          PY
-
-      - name: Build Android debug APKs
+      - name: Build Android debug APK
         working-directory: mobile-build/android
         shell: bash
         run: |
           set -euo pipefail
-
           chmod +x ./gradlew
-
           ./gradlew --no-daemon --stacktrace :app:assembleDebug
 
-      - name: Collect APK files
+      - name: Collect APK
         shell: bash
         run: |
           set -euo pipefail
 
           mkdir -p artifacts/android
 
-          find mobile-build/android/app/build/outputs/apk/debug \
-            -maxdepth 1 \
-            -type f \
-            -name "*.apk" \
-            -print \
-            -exec cp {} artifacts/android/ \;
+          APK_PATH="mobile-build/android/app/build/outputs/apk/debug/app-debug.apk"
 
-          echo "Built APKs:"
+          if [ ! -f "$APK_PATH" ]; then
+            echo "APK was not found at:"
+            echo "$APK_PATH"
+            echo ""
+            echo "Searching for generated APK files:"
+            find mobile-build/android/app/build/outputs -type f -name "*.apk" -print || true
+            exit 1
+          fi
+
+          cp "$APK_PATH" "artifacts/android/Michael-Donnah-Love-Story-debug.apk"
+
+          echo "APK created successfully:"
           ls -lh artifacts/android/
 
-          test -n "$(find artifacts/android -maxdepth 1 -name '*.apk' -print -quit)"
-
-      - name: Upload APK artifacts
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: michael-donnah-android-apks
-          path: artifacts/android/*.apk
+          name: michael-donnah-android-apk
+          path: artifacts/android/Michael-Donnah-Love-Story-debug.apk
           if-no-files-found: error
           retention-days: 30
 
@@ -149,4 +123,4 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           generate_release_notes: true
-          files: artifacts/android/*.apk
+          files: artifacts/android/Michael-Donnah-Love-Story-debug.apk
