@@ -1,45 +1,27 @@
-# Fixed GitHub Actions Android APK workflow
+# Michael × Donnah Android APK workflow v4
 
-This version fixes the previous failure:
+This version fixes the current build failure:
 
-`Could not find installation of TypeScript.`
+`invalid source release: 21`
 
-The cause was the workflow creating `capacitor.config.ts` without installing TypeScript.
+Cause: the generated Capacitor Android project requires Java 21 while the workflow was using Java 17.
 
-This workflow now creates `capacitor.config.json`, so TypeScript is not required.
+This workflow now uses Java 21 and verifies both `java` and `javac` before building.
 
-It also removes the premature npm/Gradle cache settings that caused earlier setup failures.
+It also keeps the earlier fixes:
+- no npm cache dependency path before the temporary lockfile exists
+- no premature Gradle cache
+- explicit TypeScript installation
+- JSON Capacitor config
+- Android SDK setup
+- APK artifact upload
+- optional GitHub Release on version tags
 
-## What it builds
+Run:
+GitHub -> Actions -> Build Android APK -> Run workflow
 
-A universal debug APK:
-
-`Michael-Donnah-Love-Story-debug.apk`
-
-A universal APK contains the Android native libraries needed by supported ABIs, so it is the easiest single APK to install on Android phones.
-
-## Run
-
-GitHub:
-Actions -> Build Android APK -> Run workflow
-
-Then open the successful run and download:
-
+Expected artifact:
 `michael-donnah-android-apk`
 
-## Release
-
-Push a tag:
-
-```bash
-git tag v1.0.0
-git push origin v1.0.0
-```
-
-The same APK will be attached to the GitHub Release.
-
-## Important
-
-This workflow builds Android only. iOS requires a macOS/Xcode signing environment.
-
-The GitHub Pages deploy failure shown separately in the Actions checks is a different workflow/job from the APK build.
+Expected APK:
+`Michael-Donnah-Love-Story-debug.apk`
