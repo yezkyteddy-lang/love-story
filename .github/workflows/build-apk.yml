@@ -30,11 +30,18 @@ jobs:
         with:
           node-version: 22
 
-      - name: Set up Java 17
+      - name: Set up Java 21
         uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: "21"
+
+      - name: Verify Java
+        shell: bash
+        run: |
+          set -euo pipefail
+          java -version
+          javac -version
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v4
@@ -59,13 +66,9 @@ jobs:
 
           npm init -y
 
-          # Install Capacitor plus TypeScript because Capacitor may discover
-          # a TypeScript config file in the project or its copied web source.
           npm install @capacitor/core @capacitor/android
           npm install --save-dev @capacitor/cli typescript
 
-          # Remove any copied Capacitor TypeScript config from the web source
-          # and use an explicit JSON config for this generated wrapper.
           rm -f capacitor.config.ts
 
           cat > capacitor.config.json <<'EOF'
@@ -100,7 +103,7 @@ jobs:
             echo "APK was not found at:"
             echo "$APK_PATH"
             echo ""
-            echo "Searching for generated APK files:"
+            echo "Searching for APK files:"
             find mobile-build/android/app/build/outputs -type f -name "*.apk" -print || true
             exit 1
           fi
