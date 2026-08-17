@@ -1,39 +1,45 @@
-# Michael ♥ Donnah — Private Memory Universe
+# Fixed GitHub Actions Android APK workflow
 
-HTML + CSS + JavaScript romantic monthsary website for Michael Jet Maulas and Donnah Atasha A. Batchar.
+This version fixes the previous failure:
 
-## Run locally
+`Could not find installation of TypeScript.`
 
-Use VS Code **Live Server** and open `index.html`.
+The cause was the workflow creating `capacitor.config.ts` without installing TypeScript.
 
-## Private photo vault
+This workflow now creates `capacitor.config.json`, so TypeScript is not required.
 
-The vault has three albums:
+It also removes the premature npm/Gradle cache settings that caused earlier setup failures.
 
-- ♡ Our Shared Memories
-- ♡ Michael's Photos
-- ♡ Donnah's Photos
+## What it builds
 
-Local Mode uses IndexedDB on the current device.
+A universal debug APK:
 
-Private Cloud Mode uses Firebase Authentication, Firestore, and Storage so both phones/devices can see the same memories.
+`Michael-Donnah-Love-Story-debug.apk`
 
-## Enable Cloud
+A universal APK contains the Android native libraries needed by supported ABIs, so it is the easiest single APK to install on Android phones.
 
-Use the in-page **☁️ CLOUD SETUP** button. You no longer need to open the raw `FIREBASE_SETUP.md` page in a browser tab.
+## Run
 
-Once Firebase is configured and both authorized accounts are signed in, uploads sync live across devices.
+GitHub:
+Actions -> Build Android APK -> Run workflow
 
-## Main files
+Then open the successful run and download:
 
-- `index.html`
-- `style.css`
-- `script.js`
-- `firebase-config.js`
-- `firestore.rules`
-- `storage.rules`
-- `FIREBASE_SETUP.md`
+`michael-donnah-android-apk`
+
+## Release
+
+Push a tag:
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+The same APK will be attached to the GitHub Release.
 
 ## Important
 
-A static GitHub Pages site cannot synchronize private photos between devices by itself. Cross-device private storage requires a backend service. This project uses Firebase for that purpose.
+This workflow builds Android only. iOS requires a macOS/Xcode signing environment.
+
+The GitHub Pages deploy failure shown separately in the Actions checks is a different workflow/job from the APK build.
