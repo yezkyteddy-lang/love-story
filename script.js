@@ -1265,11 +1265,30 @@ window.addEventListener("DOMContentLoaded", boot);
    - Firebase mode provides cross-device sync for the two authorized accounts.
    ========================================================================== */
 (function privateCoupleVault() {
-  const config = window.COUPLE_CONFIG || {
+  const baseConfig = window.COUPLE_CONFIG || {
     mode: "local",
     allowedEmails: [],
     firebase: {}
   };
+
+  function readSavedCloudConfig() {
+    try {
+      const raw = localStorage.getItem("coupleFirebaseSetup");
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  const savedCloud = readSavedCloudConfig();
+  const config = savedCloud && savedCloud.firebase
+    ? {
+        ...baseConfig,
+        mode: "firebase",
+        allowedEmails: Array.isArray(savedCloud.allowedEmails) ? savedCloud.allowedEmails : baseConfig.allowedEmails,
+        firebase: { ...(baseConfig.firebase || {}), ...savedCloud.firebase }
+      }
+    : baseConfig;
 
   const vaultState = {
     mode: String(config.mode || "local").toLowerCase(),
@@ -1902,6 +1921,64 @@ window.addEventListener("DOMContentLoaded", boot);
     await loadLocalVault();
   }
 
+  function openCloudSetup() {
+    const modal = el("cloudSetupModal");
+    if (!modal) return;
+    const saved = readSavedCloudConfig();
+    const emails = saved?.allowedEmails || config.allowedEmails || [];
+    const firebaseConfig = saved?.firebase || config.firebase || {};
+    if (el("cloudMichaelEmail")) el("cloudMichaelEmail").value = emails[0] || "";
+    if (el("cloudDonnahEmail")) el("cloudDonnahEmail").value = emails[1] || "";
+    if (el("cloudFirebaseJson")) el("cloudFirebaseJson").value = JSON.stringify(firebaseConfig, null, 2);
+    modal.classList.remove("hidden");
+    document.body.classList.add("cloud-setup-open");
+  }
+
+  function closeCloudSetup() {
+    el("cloudSetupModal")?.classList.add("hidden");
+    document.body.classList.remove("cloud-setup-open");
+  }
+
+  function saveCloudSetup() {
+    const michael = el("cloudMichaelEmail")?.value.trim().toLowerCase();
+    const donnah = el("cloudDonnahEmail")?.value.trim().toLowerCase();
+    const raw = el("cloudFirebaseJson")?.value.trim();
+    if (!michael || !donnah) {
+      showNotification("💗 TWO EMAILS REQUIRED", "Enter Michael's and Donnah's exact Firebase Authentication emails.");
+      return;
+    }
+    if (!raw) {
+      showNotification("☁️ FIREBASE CONFIG REQUIRED", "Paste the Web App config from your Firebase Console first.");
+      return;
+    }
+    let firebaseConfig;
+    try {
+      firebaseConfig = JSON.parse(raw);
+    } catch {
+      showNotification("⚠️ INVALID FIREBASE JSON", "Paste the config exactly as Firebase provided it.");
+      return;
+    }
+    const required = ["apiKey", "authDomain", "projectId", "storageBucket", "messagingSenderId", "appId"];
+    const missing = required.filter((key) => !firebaseConfig[key]);
+    if (missing.length) {
+      showNotification("⚠️ INCOMPLETE FIREBASE CONFIG", `Missing: ${missing.join(", ")}`);
+      return;
+    }
+    localStorage.setItem("coupleFirebaseSetup", JSON.stringify({
+      allowedEmails: [michael, donnah],
+      firebase: firebaseConfig
+    }));
+    closeCloudSetup();
+    showNotification("☁️ CLOUD SETTINGS SAVED", "Reloading this site and enabling private cross-device sync...");
+    setTimeout(() => window.location.reload(), 850);
+  }
+
+  function clearCloudSetup() {
+    localStorage.removeItem("coupleFirebaseSetup");
+    showNotification("🔐 CLOUD SETTINGS RESET", "The site will return to Local Mode after reload.");
+    setTimeout(() => window.location.reload(), 650);
+  }
+
   let quickHeartUpload = false;
 
   function bindVaultEvents() {
@@ -1914,11 +1991,32 @@ window.addEventListener("DOMContentLoaded", boot);
     el("vaultLogoutBtn")?.addEventListener("click", signOut);
     el("vaultUploadBtn")?.addEventListener("click", handleVaultUpload);
     el("addHeartPhotoBtn")?.addEventListener("click", () => {
+      el("heartPhotoFiles")?.click();
+    });
+
+    el("heartPhotoFiles")?.addEventListener("change", async () => {
+      const files = el("heartPhotoFiles")?.files ? Array.from(el("heartPhotoFiles").files) : [];
+      if (!files.length) return;
+      const title = el("vaultPhotoTitle");
+      const caption = el("vaultPhotoCaption");
       const album = el("vaultAlbum");
       if (album) album.value = "shared";
-      quickHeartUpload = true;
-      el("vaultPhotoFiles")?.click();
+      if (title && !title.value.trim()) title.value = "A memory for our heart";
+      const originalInput = el("vaultPhotoFiles");
+      if (originalInput) {
+        const dataTransfer = new DataTransfer();
+        files.forEach((file) => dataTransfer.items.add(file));
+        originalInput.files = dataTransfer.files;
+      }
+      await handleVaultUpload();
+      if (el("heartPhotoFiles")) el("heartPhotoFiles").value = "";
+      if (caption) caption.value = "";
     });
+
+    el("openCloudSetupBtn")?.addEventListener("click", openCloudSetup);
+    document.querySelectorAll("[data-cloud-close]").forEach((node) => node.addEventListener("click", closeCloudSetup));
+    el("saveCloudSetupBtn")?.addEventListener("click", saveCloudSetup);
+    el("clearCloudSetupBtn")?.addEventListener("click", clearCloudSetup);
     el("vaultLocalPerson")?.addEventListener("change", (event) => {
       vaultState.localPerson = event.target.value === "Donnah" ? "Donnah" : "Michael";
       localStorage.setItem("coupleLocalPerson", vaultState.localPerson);
@@ -1966,7 +2064,7 @@ window.addEventListener("DOMContentLoaded", boot);
       vaultState.useFirebase = false;
       updateVaultModeUI();
       updateVaultAuthUI();
-      showNotification("🔐 PRIVATE VAULT", "Cloud mode is not ready, so the site is using the safe local photo fallback.");
+      showNotification("☁️ CLOUD SETUP NEEDED", "Open CLOUD SETUP in the Private Couple Photo Vault, paste your Firebase Web App config, and reload.");
       await loadLocalVault();
     }
   });

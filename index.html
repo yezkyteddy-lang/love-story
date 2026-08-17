@@ -236,7 +236,8 @@
             <p class="heart-memory-note">Shared memories uploaded to <strong>♡ Our Memories</strong> can appear inside this living heart for both of you.</p>
             <div class="memory-heart" id="memoryHeart" aria-label="Heart made from our shared memories"></div>
             <div class="heart-upload-bar">
-              <button id="addHeartPhotoBtn" class="pink-btn" type="button">📸 ADD A PHOTO TO OUR HEART</button>
+              <label id="addHeartPhotoLabel" class="pink-btn heart-upload-button" for="heartPhotoFiles">📸 ADD A PHOTO TO OUR HEART</label>
+              <input id="heartPhotoFiles" class="sr-only-file-input" type="file" accept="image/*" multiple />
               <small>Choose a picture, then it will be saved to <strong>Our Memories</strong> and appear here.</small>
             </div>
           </div>
@@ -262,7 +263,7 @@
             </div>
             <div class="vault-intro-actions">
               <div id="vaultSecurityBadge" class="vault-badge">🔐 LOCAL MODE</div>
-              <a class="ghost-btn small" href="FIREBASE_SETUP.md" target="_blank" rel="noopener">☁️ CLOUD SETUP</a>
+              <button id="openCloudSetupBtn" class="ghost-btn small" type="button">☁️ CLOUD SETUP</button>
             </div>
           </div>
 
@@ -362,7 +363,7 @@
 
     <footer id="settings" class="footer glass">
       <div>Michael Jet Maulas ♥ Donnah Atasha A. Batchar</div>
-      <small>This version stores data locally in the browser. It is designed for a future backend without rebuilding the whole frontend.</small>
+      <small>Local Mode keeps photos on this device. Private Cloud Mode uses Firebase so Michael and Donnah can see the same memories across phones, tablets, and computers.</small>
     </footer>
   </div>
 
@@ -388,6 +389,49 @@
         <button id="prevMemoryBtn" type="button">♡ PREVIOUS MEMORY</button>
         <button id="nextMemoryBtn" type="button">♡ NEXT MEMORY</button>
       </div>
+    </div>
+  </div>
+
+  <div id="cloudSetupModal" class="cloud-setup-modal hidden" role="dialog" aria-modal="true" aria-labelledby="cloudSetupTitle">
+    <div class="cloud-setup-backdrop" data-cloud-close></div>
+    <div class="cloud-setup-panel glass">
+      <div class="cloud-setup-header">
+        <div>
+          <div class="panel-header">♡ PRIVATE CLOUD SETUP ♡</div>
+          <h2 id="cloudSetupTitle">Make Michael &amp; Donnah see the same memories on every device</h2>
+          <p>Configure Firebase once, then both of you can sign in with your own authorized email and see shared uploads in real time.</p>
+        </div>
+        <button class="icon-btn" type="button" data-cloud-close aria-label="Close cloud setup">✕</button>
+      </div>
+
+      <div class="cloud-setup-grid">
+        <label>Michael email
+          <input id="cloudMichaelEmail" type="email" placeholder="michael@example.com" autocomplete="email" />
+        </label>
+        <label>Donnah email
+          <input id="cloudDonnahEmail" type="email" placeholder="donnah@example.com" autocomplete="email" />
+        </label>
+        <label class="cloud-wide">Firebase Web App Config (JSON)
+          <textarea id="cloudFirebaseJson" rows="9" spellcheck="false" placeholder='{"apiKey":"...","authDomain":"...","projectId":"...","storageBucket":"...","messagingSenderId":"...","appId":"..."}'></textarea>
+        </label>
+      </div>
+
+      <div class="cloud-setup-steps">
+        <strong>Quick setup</strong>
+        <ol>
+          <li>Firebase Console → create a project → add a Web App.</li>
+          <li>Enable <b>Authentication → Email/Password</b>, Firestore Database, and Storage.</li>
+          <li>Paste the Web App config above and enter the exact two email addresses you will use.</li>
+          <li>Publish the included <code>firestore.rules</code> and <code>storage.rules</code> to your Firebase project.</li>
+          <li>Reload the site and sign in on both phones. New photos will then sync live.</li>
+        </ol>
+      </div>
+
+      <div class="cloud-setup-actions">
+        <button id="saveCloudSetupBtn" class="pink-btn" type="button">☁️ SAVE &amp; ENABLE CLOUD</button>
+        <button id="clearCloudSetupBtn" class="ghost-btn" type="button">RESET CLOUD SETTINGS</button>
+      </div>
+      <small class="cloud-setup-note">Your Firebase Web App config is okay to place in a static site. The actual privacy is enforced by Firebase Authentication and Security Rules.</small>
     </div>
   </div>
 

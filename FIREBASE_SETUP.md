@@ -1,115 +1,45 @@
-# Private Couple Photo Vault — Firebase Setup
+# Private Couple Cloud — Setup
 
-The website now supports two modes:
+The website has two modes:
 
-1. **Local mode** — works immediately. Uploaded photos are stored in this browser only.
-2. **Firebase mode** — shared private photos between Michael and Donnah across phones/computers.
+## Local Mode
+Works immediately, but uploaded photos stay in the current browser/device.
 
-A static GitHub Pages site cannot securely synchronize private photos by itself. For the shared private vault, use Firebase Authentication + Firestore + Storage.
+## Private Cloud Mode
+Uses Firebase Authentication + Firestore + Storage so Michael and Donnah can see the same uploaded memories on different phones, tablets, or computers.
 
-## 1. Create a Firebase project
+## Setup
 
-Open Firebase Console and create a project.
+1. Open the website and go to **PRIVATE COUPLE PHOTO VAULT**.
+2. Click **☁️ CLOUD SETUP**. This opens an in-page setup panel; it no longer sends you to this Markdown page.
+3. In Firebase Console, create a Firebase project and add a Web App.
+4. Enable:
+   - Authentication → Sign-in method → Email/Password
+   - Firestore Database
+   - Storage
+5. Copy the Firebase Web App config into the website's Cloud Setup panel.
+6. Enter the exact Firebase Authentication email for Michael and the exact Firebase Authentication email for Donnah.
+7. Deploy the included `firestore.rules` and `storage.rules` to the same Firebase project.
+8. Click **☁️ SAVE & ENABLE CLOUD**. The site reloads in Cloud Mode.
+9. Create/sign in to the two authorized accounts.
 
-Enable:
+After both devices are signed in, uploads to **Our Memories**, **Michael**, and **Donnah** are stored in Firebase and are synchronized live.
 
-- Authentication → Sign-in method → Email/Password
-- Firestore Database
-- Storage
+## Important
 
-## 2. Create the two accounts
+A Firebase Web App config is normal client-side configuration. The actual privacy is enforced by Firebase Authentication and the Firestore/Storage Security Rules.
 
-Use the actual email addresses for:
+The exact two email addresses must be placed into the Security Rules as well as the site's Cloud Setup panel.
 
-- Michael
-- Donnah
-
-The site only accepts those two emails in the client config, and the Firebase Security Rules also enforce them on the server.
-
-## 3. Add your Firebase web app config
-
-Open `firebase-config.js` and change:
-
-```js
-window.COUPLE_CONFIG = {
-  mode: "firebase",
-  allowedEmails: [
-    "MICHAEL_REAL_EMAIL",
-    "DONNAH_REAL_EMAIL"
-  ],
-  firebase: {
-    apiKey: "...",
-    authDomain: "...",
-    projectId: "...",
-    storageBucket: "...",
-    messagingSenderId: "...",
-    appId: "..."
-  }
-};
-```
-
-Copy these values from Firebase Project Settings → Your apps → Web app.
-
-## 4. Deploy the security rules
-
-Open Firestore → Rules and paste the contents of `firestore.rules`.
-
+### Firestore rules
 Replace:
 
 - `MICHAEL_EMAIL_HERE`
 - `DONNAH_EMAIL_HERE`
 
-with the same two email addresses used in `firebase-config.js`.
+inside `firestore.rules`.
 
-Open Storage → Rules and paste the contents of `storage.rules`.
+### Storage rules
+Replace the same two placeholders inside `storage.rules`.
 
-Replace the same two email placeholders there too.
-
-## 5. Put the updated files on GitHub Pages
-
-Commit/push these project files to the repository that serves your GitHub Pages site:
-
-- `index.html`
-- `style.css`
-- `script.js`
-- `firebase-config.js`
-- `firestore.rules` (for Firebase Console rules)
-- `storage.rules` (for Firebase Console rules)
-
-Do not put the two account passwords into the website files.
-
-## 6. Use the website on both phones
-
-After the GitHub Pages deployment finishes:
-
-1. Open the same website URL on Michael's phone.
-2. Open the same website URL on Donnah's phone.
-3. Both users sign in with their own authorized Firebase email/password account.
-4. Choose an album:
-   - `Our Memories` — shared and shown in the heart gallery.
-   - `Michael` — Michael's personal album.
-   - `Donnah` — Donnah's personal album.
-5. Upload one or many photos.
-6. New cloud photos are stored in Firebase Storage and their metadata is stored in Firestore.
-
-The vault now uses a real-time Firestore listener, so new uploads/deletes can appear on the other signed-in phone without needing a page rebuild.
-
-If the other phone still says **LOCAL MODE**, the deployed `firebase-config.js` is still in local mode or still contains placeholders.
-
-If sign-in says `auth/operation-not-allowed`, enable **Authentication → Sign-in method → Email/Password** in Firebase Console.
-
-## Privacy behavior
-
-Only the two authorized email accounts are allowed by the Firebase rules to read/write the private photo collection.
-
-The rest of the public website is not automatically private. This upgrade specifically creates a private authenticated photo vault. If you want the *entire website* behind the same two-account login, the same Firebase gate can be extended to the full page.
-
-## Local mode
-
-The default config is intentionally:
-
-```js
-mode: "local"
-```
-
-This prevents a broken site before Firebase is configured. Local mode stores photos in IndexedDB and does not pretend they are shared across devices.
+Do not make the Firestore or Storage rules public.

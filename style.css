@@ -2693,3 +2693,295 @@ textarea {
 .today-memory-image-btn { display: block; width: 100%; margin: 0.8rem 0; border-radius: 1rem; overflow: hidden; background: transparent; border: 1px solid rgba(255,255,255,0.2); padding: 0; }
 .today-memory-image-btn img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; }
 @media (max-width: 640px) { .vault-intro-actions { justify-content: flex-start; } .heart-upload-bar .pink-btn { width: min(100%, 22rem); } }
+
+/* 33. Cloud setup modal + stronger interaction hit areas */
+.heart-upload-button,
+#addHeartPhotoBtn,
+.vault-upload-actions .pink-btn,
+.gallery-controls .pink-btn,
+.gallery-controls .ghost-btn,
+.vault-tab,
+.vault-intro-actions .ghost-btn {
+  position: relative;
+  z-index: 15;
+  pointer-events: auto;
+}
+
+.heart-upload-bar {
+  position: relative;
+  z-index: 20;
+}
+
+.sr-only-file-input {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  overflow: hidden !important;
+}
+
+.cloud-setup-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.cloud-setup-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(18, 8, 24, 0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.cloud-setup-panel {
+  position: relative;
+  z-index: 2;
+  width: min(900px, 100%);
+  max-height: min(90vh, 860px);
+  overflow: auto;
+  border-radius: 1.5rem;
+  padding: 1.2rem;
+  box-shadow: 0 30px 80px rgba(0,0,0,.35);
+}
+
+.cloud-setup-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.cloud-setup-header h2 {
+  margin: .2rem 0 .4rem;
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(1.8rem, 5vw, 2.7rem);
+  line-height: 1;
+  color: var(--text);
+}
+
+.cloud-setup-header p {
+  margin: 0;
+  max-width: 48rem;
+  color: var(--text-soft);
+  line-height: 1.65;
+}
+
+.cloud-setup-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .8rem;
+  margin-top: 1rem;
+}
+
+.cloud-setup-grid label {
+  display: grid;
+  gap: .4rem;
+  font-size: .7rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-weight: 800;
+  color: var(--text-soft);
+}
+
+.cloud-setup-grid .cloud-wide {
+  grid-column: 1 / -1;
+}
+
+.cloud-setup-grid input,
+.cloud-setup-grid textarea {
+  width: 100%;
+  min-width: 0;
+  color: var(--text);
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.24);
+  border-radius: .9rem;
+  padding: .8rem .85rem;
+  resize: vertical;
+}
+
+.cloud-setup-grid input::placeholder,
+.cloud-setup-grid textarea::placeholder {
+  color: var(--text-soft);
+  opacity: .75;
+}
+
+.cloud-setup-grid textarea {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: .75rem;
+  line-height: 1.45;
+}
+
+.cloud-setup-steps {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.16);
+  color: var(--text-soft);
+}
+
+.cloud-setup-steps strong {
+  color: var(--text);
+}
+
+.cloud-setup-steps ol {
+  margin: .55rem 0 0 1.2rem;
+  padding: 0;
+  line-height: 1.7;
+}
+
+.cloud-setup-steps li + li {
+  margin-top: .25rem;
+}
+
+.cloud-setup-steps code {
+  color: var(--pink-strong);
+}
+
+.cloud-setup-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .6rem;
+  margin-top: 1rem;
+}
+
+.cloud-setup-note {
+  display: block;
+  margin-top: .75rem;
+  color: var(--text-soft);
+  line-height: 1.55;
+}
+
+body.cloud-setup-open {
+  overflow: hidden;
+}
+
+/* Native selects often ignore the main text variable in dark mode. */
+select,
+select option {
+  color: var(--text) !important;
+  background: #25172d;
+}
+
+body.night-mode select,
+body.night-mode select option {
+  color: #fff7fc !important;
+  background: #241327 !important;
+}
+
+/* Stronger night-mode readability for elements using translucent/hard-coded colors. */
+body.night-mode .private-vault-panel,
+body.night-mode .memories-panel,
+body.night-mode .love-wall,
+body.night-mode .letters-panel,
+body.night-mode .replies-panel,
+body.night-mode .journey-panel,
+body.night-mode .dashboard-card,
+body.night-mode .hero,
+body.night-mode .timeline-panel,
+body.night-mode .footer,
+body.night-mode .glass {
+  color: #fff7fc;
+}
+
+body.night-mode .card-title,
+body.night-mode .panel-header,
+body.night-mode .memory-title,
+body.night-mode .heart-made-title {
+  color: #ff8ccd;
+}
+
+body.night-mode .private-vault-intro p,
+body.night-mode .vault-sync-help,
+body.night-mode .vault-auth-copy span,
+body.night-mode .vault-local-notice span,
+body.night-mode .vault-field > span,
+body.night-mode .upload-dropzone small,
+body.night-mode .vault-photo-meta span,
+body.night-mode .vault-photo-meta small,
+body.night-mode .vault-cloud-status span,
+body.night-mode .heart-memory-note,
+body.night-mode .heart-upload-bar small,
+body.night-mode .cloud-setup-header p,
+body.night-mode .cloud-setup-grid label,
+body.night-mode .cloud-setup-note,
+body.night-mode .cloud-setup-steps,
+body.night-mode .vault-signed-in-as,
+body.night-mode .vault-user-status {
+  color: #f1dce9;
+}
+
+body.night-mode .vault-photo-meta strong,
+body.night-mode .vault-empty-state strong,
+body.night-mode .vault-auth-copy strong,
+body.night-mode .cloud-setup-header h2,
+body.night-mode .cloud-setup-steps strong,
+body.night-mode .cloud-setup-grid input,
+body.night-mode .cloud-setup-grid textarea {
+  color: #fff7fc;
+}
+
+body.night-mode .vault-login-form input,
+body.night-mode .vault-field input,
+body.night-mode .vault-field select,
+body.night-mode .cloud-setup-grid input,
+body.night-mode .cloud-setup-grid textarea,
+body.night-mode .vault-local-identity select {
+  background: rgba(255,255,255,.12);
+  border-color: rgba(255,255,255,.24);
+}
+
+body.night-mode .ghost-btn,
+body.night-mode .icon-btn,
+body.night-mode .mobile-menu-btn,
+body.night-mode .vault-tab {
+  color: #fff7fc;
+  border-color: rgba(255,255,255,.3);
+}
+
+body.night-mode .vault-tab.active {
+  color: #ffffff;
+}
+
+body.night-mode .vault-empty-state {
+  color: #f1dce9;
+}
+
+body.night-mode .memory-badges,
+body.night-mode .memory-count,
+body.night-mode .mini-label,
+body.night-mode .small-note,
+body.night-mode .hero-line,
+body.night-mode .feature-label,
+body.night-mode .reason-progress,
+body.night-mode .counter-title,
+body.night-mode .next-month-countdown,
+body.night-mode .love-message-text,
+body.night-mode .love-level-text,
+body.night-mode .clock-date,
+body.night-mode .clock-label,
+body.night-mode .metric-box small,
+body.night-mode .countdown-box .label,
+body.night-mode .count-box .label {
+  color: #ecd5e3;
+}
+
+@media (max-width: 640px) {
+  .cloud-setup-grid {
+    grid-template-columns: 1fr;
+  }
+  .cloud-setup-grid .cloud-wide {
+    grid-column: auto;
+  }
+  .cloud-setup-panel {
+    padding: 1rem;
+  }
+  .cloud-setup-actions > * {
+    width: 100%;
+  }
+}
