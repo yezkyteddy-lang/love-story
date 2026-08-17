@@ -181,6 +181,38 @@ const MEMORY_FILES = [
   "f9e11083-0eda-4edd-8474-6fcd600b0ee0.jpg"
 ];
 
+// Dynamic private-vault photos are merged into the main memory universe.
+window.privateVaultMemories = window.privateVaultMemories || [];
+
+function getUnifiedMemoryItems() {
+  const staticItems = MEMORY_FILES.map((src, index) => ({
+    type: "static",
+    src,
+    staticIndex: index,
+    album: "shared",
+    title: "Our memory",
+    caption: "A little piece of our story."
+  }));
+  const dynamic = Array.isArray(window.privateVaultMemories) ? window.privateVaultMemories : [];
+  return [...staticItems, ...dynamic];
+}
+
+function getHeartMemoryItems() {
+  return getUnifiedMemoryItems().filter((item) => item.album === "shared");
+}
+
+function openUnifiedMemory(index) {
+  const items = getUnifiedMemoryItems();
+  if (!items.length) return;
+  const safe = ((index % items.length) + items.length) % items.length;
+  const item = items[safe];
+  if (item.type === "vault" && window.openPrivateVaultViewerById) {
+    window.openPrivateVaultViewerById(item.id);
+    return;
+  }
+  openLightbox(item.staticIndex ?? safe);
+}
+
 const loveMessages = [
   "You're one of my favorite parts of every day.",
   "I'd still choose you in every version of our story.",
@@ -630,19 +662,26 @@ function renderJourney() {
 
 function renderMemoryGalaxy() {
   const galaxy = document.getElementById("memoryGalaxy");
+  if (!galaxy) return;
   galaxy.innerHTML = "";
+  const items = getUnifiedMemoryItems();
+  if (!items.length) return;
 
   const ringConfigs = [
-    { count: 10, radius: 150, offset: 0, speed: 0.5, scale: 1 },
-    { count: 14, radius: 240, offset: 40, speed: -0.75, scale: 1.08 },
-    { count: 18, radius: 330, offset: 90, speed: 0.8, scale: 1.12 },
-    { count: 20, radius: 420, offset: 150, speed: -0.45, scale: 1.18 }
+    { count: 10, radius: 150, offset: 0, scale: 1 },
+    { count: 14, radius: 240, offset: 40, scale: 1.08 },
+    { count: 18, radius: 330, offset: 90, scale: 1.12 },
+    { count: 20, radius: 420, offset: 150, scale: 1.18 }
   ];
 
+  let counter = 0;
   ringConfigs.forEach((ring, ringIndex) => {
-    for (let i = 0; i < ring.count; i++) {
-      const item = document.createElement("div");
+    for (let i = 0; i < ring.count; i += 1) {
+      const source = items[counter % items.length];
+      const item = document.createElement("button");
+      item.type = "button";
       item.className = "memory-orbit-item";
+      item.setAttribute("aria-label", `Open memory ${counter + 1}`);
       const angle = (360 / ring.count) * i + ring.offset;
       const x = Math.cos((angle * Math.PI) / 180) * ring.radius;
       const y = Math.sin((angle * Math.PI) / 180) * ring.radius * 0.7;
@@ -650,17 +689,22 @@ function renderMemoryGalaxy() {
       item.style.transform = `translate3d(${x}px, ${y}px, ${z}px) rotateY(${angle}deg) scale(${ring.scale})`;
 
       const img = document.createElement("img");
-      img.src = MEMORY_FILES[i % MEMORY_FILES.length];
-      img.alt = "Our memory";
+      img.src = source.src || source.url || "";
+      img.alt = source.title || "Our memory";
       img.loading = "lazy";
-      img.addEventListener("click", () => openLightbox(i + ringIndex * 10));
       item.appendChild(img);
+      const openIndex = counter % items.length;
+      item.addEventListener("click", () => openUnifiedMemory(openIndex));
       galaxy.appendChild(item);
+      counter += 1;
     }
   });
 
   const heart = document.getElementById("memoryHeart");
+  if (!heart) return;
   heart.innerHTML = "";
+  const heartItems = getHeartMemoryItems();
+  const sourceItems = heartItems.length ? heartItems : items;
 
   const heartMap = [
     [0, 0, 0, 1, 1, 0, 0, 0],
@@ -673,53 +717,73 @@ function renderMemoryGalaxy() {
     [0, 0, 0, 1, 1, 0, 0, 0]
   ];
 
-  heartMap.forEach((row, rowIndex) => {
-    row.forEach((cell, colIndex) => {
-      if (!cell) return;
-      const tile = document.createElement("div");
-      tile.className = "memory-heart-photo";
-      const img = document.createElement("img");
-      img.src = MEMORY_FILES[(rowIndex * 8 + colIndex) % MEMORY_FILES.length];
-      img.alt = "Memory heart";
-      img.loading = "lazy";
-      tile.appendChild(img);
-      tile.addEventListener("click", () => openLightbox((rowIndex * 8 + colIndex) % MEMORY_FILES.length));
-      heart.appendChild(tile);
+  let heartIndex = 0;
+  heartMap.forEach((row) => row.forEach((cell) => {
+    if (!cell) return;
+    const source = sourceItems[heartIndex % sourceItems.length];
+    const tile = document.createElement("button");
+    tile.type = "button";
+    tile.className = "memory-heart-photo";
+    const img = document.createElement("img");
+    img.src = source.src || source.url || "";
+    img.alt = source.title || "Memory heart";
+    img.loading = "lazy";
+    tile.appendChild(img);
+    tile.addEventListener("click", () => {
+      const unified = getUnifiedMemoryItems();
+      const globalIndex = unified.findIndex((entry) => entry.type === source.type && (entry.id ? entry.id === source.id : entry.staticIndex === source.staticIndex));
+      openUnifiedMemory(globalIndex >= 0 ? globalIndex : 0);
     });
-  });
+    heart.appendChild(tile);
+    heartIndex += 1;
+  }));
+
+  const countNode = document.getElementById("photoCountText");
+  if (countNode) countNode.textContent = `${items.length} PHOTOS`;
 }
 
 function renderMemoryStreams() {
   const rowOne = document.getElementById("streamRowOne");
   const rowTwo = document.getElementById("streamRowTwo");
+  if (!rowOne || !rowTwo) return;
+  const items = getUnifiedMemoryItems();
+  if (!items.length) return;
+  const repeat = [...items, ...items];
 
-  const repeat = [...MEMORY_FILES, ...MEMORY_FILES];
-  rowOne.innerHTML = repeat.map((source, index) => `
-    <button class="stream-card" type="button" data-memory-index="${index % MEMORY_FILES.length}">
-      <img src="${source}" alt="Love memory ${index + 1}" loading="lazy" />
-    </button>
-  `).join("");
+  rowOne.innerHTML = repeat.map((item, index) => `
+    <button class="stream-card" type="button" data-unified-memory-index="${index % items.length}" aria-label="Open memory">
+      <img src="${escapeHtml(item.src || item.url || "")}" alt="${escapeHtml(item.title || "Love memory")}" loading="lazy" />
+    </button>`).join("");
 
-  rowTwo.innerHTML = [...repeat].reverse().map((source, index) => `
-    <button class="stream-card" type="button" data-memory-index="${index % MEMORY_FILES.length}">
-      <img src="${source}" alt="Love memory reverse ${index + 1}" loading="lazy" />
-    </button>
-  `).join("");
+  rowTwo.innerHTML = [...repeat].reverse().map((item, index) => {
+    const itemIndex = items.length - 1 - (index % items.length);
+    return `
+      <button class="stream-card" type="button" data-unified-memory-index="${itemIndex}" aria-label="Open memory">
+        <img src="${escapeHtml(item.src || item.url || "")}" alt="${escapeHtml(item.title || "Love memory")}" loading="lazy" />
+      </button>`;
+  }).join("");
+
+  document.querySelectorAll("[data-unified-memory-index]").forEach((button) => {
+    button.addEventListener("click", () => openUnifiedMemory(Number(button.dataset.unifiedMemoryIndex) || 0));
+  });
 }
 
 function renderTodayMemory() {
   const today = new Date();
+  const items = getUnifiedMemoryItems();
+  if (!items.length) return;
   const dateKey = today.toLocaleDateString("en-CA", { timeZone: "Asia/Manila" });
   const sum = Array.from(dateKey).reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  const index = sum % MEMORY_FILES.length;
-  const source = MEMORY_FILES[index];
-
+  const source = items[sum % items.length];
+  const sourceIndex = items.indexOf(source);
   document.getElementById("todayMemoryCard").innerHTML = `
     <div><strong>Today's Memory</strong></div>
     <div>${new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Manila", month: "long", day: "numeric", year: "numeric" }).format(today)}</div>
-    <img src="${source}" alt="Today's memory" />
-    <div class="caption">"Another day, another reason to smile because of you."</div>
-  `;
+    <button type="button" class="today-memory-image-btn" data-unified-memory-index="${sourceIndex}">
+      <img src="${escapeHtml(source.src || source.url || "")}" alt="${escapeHtml(source.title || "Today's memory")}" />
+    </button>
+    <div class="caption">"Another day, another reason to smile because of you."</div>`;
+  document.querySelector(".today-memory-image-btn")?.addEventListener("click", () => openUnifiedMemory(sourceIndex));
 }
 
 function renderLoveWall() {
@@ -914,7 +978,15 @@ function initializeEvents() {
   });
   updateLoveReasons(appState.reasonIndex);
 
-  document.getElementById("photoCountText").textContent = `${MEMORY_FILES.length} PHOTOS`;
+  document.getElementById("photoCountText").textContent = `${getUnifiedMemoryItems().length} PHOTOS`;
+
+  window.addEventListener("private-vault-updated", () => {
+    renderMemoryGalaxy();
+    renderMemoryStreams();
+    renderTodayMemory();
+    const countNode = document.getElementById("photoCountText");
+    if (countNode) countNode.textContent = `${getUnifiedMemoryItems().length} PHOTOS`;
+  });
 
   document.addEventListener("keydown", (event) => {
     if (event.key !== "Escape") return;
@@ -1211,6 +1283,8 @@ window.addEventListener("DOMContentLoaded", boot);
     auth: null,
     useFirebase: false,
     firebaseReady: false,
+    cloudUnsubscribe: null,
+    cloudSynced: false,
     localDb: null,
     localReady: false,
     localPerson: localStorage.getItem("coupleLocalPerson") || "Michael"
@@ -1253,13 +1327,18 @@ window.addEventListener("DOMContentLoaded", boot);
     const authMessage = el("vaultAuthMessage");
     const localNotice = el("vaultLocalNotice");
     const loginForm = el("vaultLoginForm");
+    const cloudStatus = el("vaultCloudStatus");
 
     if (vaultState.useFirebase) {
       badge?.classList.add("cloud-ready");
-      if (badge) badge.textContent = "🔐 PRIVATE CLOUD MODE";
-      if (authMessage) authMessage.textContent = "Only the two authorized Firebase accounts can open this shared photo vault.";
+      if (badge) badge.textContent = vaultState.cloudSynced ? "☁️ PRIVATE CLOUD SYNCED" : "☁️ PRIVATE CLOUD READY";
+      if (authMessage) authMessage.textContent = "Both authorized couple accounts can access the same private photo vault across devices.";
       localNotice?.classList.add("hidden");
       loginForm?.classList.remove("hidden");
+      cloudStatus?.classList.remove("hidden");
+      if (cloudStatus) cloudStatus.innerHTML = vaultState.cloudSynced
+        ? "<strong>☁️ LIVE SYNC ON</strong><span>New uploads and changes can appear on the other signed-in phone automatically.</span>"
+        : "<strong>☁️ CLOUD READY</strong><span>Sign in with one of the two authorized accounts to enable cross-device memories.</span>";
       return;
     }
 
@@ -1268,6 +1347,7 @@ window.addEventListener("DOMContentLoaded", boot);
     if (authMessage) authMessage.textContent = "Local mode works immediately, but photos saved here stay on this browser/device only.";
     localNotice?.classList.remove("hidden");
     loginForm?.classList.add("hidden");
+    cloudStatus?.classList.add("hidden");
   }
 
   function updateVaultAuthUI() {
@@ -1520,10 +1600,22 @@ window.addEventListener("DOMContentLoaded", boot);
       const list = await localGetPhotos();
       vaultState.items = list.map((item) => ({
         ...item,
-        objectUrl: URL.createObjectURL(item.blob),
+        objectUrl: URL.createObjectURL(item.blob)
       }));
       vaultState.objectUrls = vaultState.items.map((item) => item.objectUrl);
+      window.privateVaultMemories = vaultState.items.map((item) => ({
+        type: "vault",
+        id: item.id,
+        src: item.objectUrl,
+        url: item.objectUrl,
+        album: item.album || "shared",
+        title: item.title || "Our private memory",
+        caption: item.caption || "",
+        uploaderName: item.uploaderName || vaultState.localPerson,
+        createdAt: item.createdAt
+      }));
       renderVaultGallery();
+      window.dispatchEvent(new CustomEvent("private-vault-updated"));
     } catch (error) {
       showNotification("⚠️ LOCAL VAULT ERROR", error?.message || "Your browser could not open the local photo vault.");
       showVaultEmpty("Your browser may have private storage disabled.");
@@ -1532,7 +1624,9 @@ window.addEventListener("DOMContentLoaded", boot);
 
   async function uploadLocalPhotos(files, meta) {
     updateUploadProgress(2, `Preparing ${files.length} photo${files.length === 1 ? "" : "s"}...`);
-    const person = vaultState.currentUser?.email ? personNameFromEmail(vaultState.currentUser.email) : "Our Love Story";
+    const person = vaultState.useFirebase && vaultState.currentUser?.email
+      ? personNameFromEmail(vaultState.currentUser.email)
+      : vaultState.localPerson;
     for (let i = 0; i < files.length; i += 1) {
       const file = files[i];
       const id = `local-${Date.now()}-${i}-${crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2)}`;
@@ -1618,10 +1712,14 @@ window.addEventListener("DOMContentLoaded", boot);
     if (!validateFiles(files)) return;
     const meta = getUploadMeta();
     if (vaultState.useFirebase) {
+      if (!vaultState.currentUser) {
+        showNotification("🔐 SIGN IN FIRST", "Sign in with Michael's or Donnah's authorized account before uploading a shared photo.");
+        return;
+      }
       await uploadCloudPhotos(files, meta);
-    } else {
-      await uploadLocalPhotos(files, meta);
+      return;
     }
+    await uploadLocalPhotos(files, meta);
   }
 
   function firebaseFriendlyError(error) {
@@ -1644,17 +1742,46 @@ window.addEventListener("DOMContentLoaded", boot);
 
   async function loadCloudVault() {
     if (!vaultState.useFirebase || !vaultState.currentUser) return;
+    vaultState.cloudUnsubscribe?.();
+    vaultState.cloudSynced = false;
+    updateVaultModeUI();
     try {
-      const snapshot = await vaultState.db.collection("coupleMemories").orderBy("createdAt", "desc").limit(200).get();
-      vaultState.items = snapshot.docs.map((doc) => {
-        const data = doc.data() || {};
-        const createdAt = data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : (data.createdAt || new Date().toISOString());
-        return { id: doc.id, ...data, createdAt };
-      });
-      renderVaultGallery();
+      vaultState.cloudUnsubscribe = vaultState.db.collection("coupleMemories")
+        .limit(200)
+        .onSnapshot((snapshot) => {
+          vaultState.items = snapshot.docs.map((doc) => {
+            const data = doc.data() || {};
+            const createdAt = data.createdAt?.toDate
+              ? data.createdAt.toDate().toISOString()
+              : (data.createdAt || new Date().toISOString());
+            return { id: doc.id, ...data, createdAt };
+          }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+          vaultState.cloudSynced = true;
+          updateVaultModeUI();
+          renderVaultGallery();
+          window.privateVaultMemories = vaultState.items.map((item) => ({
+            type: "vault",
+            id: item.id,
+            src: item.url || "",
+            url: item.url || "",
+            album: item.album || "shared",
+            title: item.title || "Our private memory",
+            caption: item.caption || "",
+            uploaderName: item.uploaderName || "Our Love Story",
+            createdAt: item.createdAt
+          }));
+          window.dispatchEvent(new CustomEvent("private-vault-updated"));
+        }, (error) => {
+          vaultState.cloudSynced = false;
+          updateVaultModeUI();
+          showNotification("⚠️ LIVE SYNC FAILED", firebaseFriendlyError(error));
+          showVaultEmpty("The cloud gallery could not be loaded. Check Firebase Authentication, Firestore rules, and project settings.");
+        });
     } catch (error) {
+      vaultState.cloudSynced = false;
+      updateVaultModeUI();
       showNotification("⚠️ VAULT COULD NOT LOAD", firebaseFriendlyError(error));
-      showVaultEmpty("The cloud gallery could not be loaded. Check Firebase Firestore rules and indexes.");
     }
   }
 
@@ -1749,24 +1876,33 @@ window.addEventListener("DOMContentLoaded", boot);
         return;
       }
       vaultState.currentUser = user || null;
+      vaultState.cloudSynced = false;
       updateVaultAuthUI();
       if (user) {
         await loadCloudVault();
       } else {
+        vaultState.cloudUnsubscribe?.();
+        vaultState.cloudUnsubscribe = null;
         vaultState.items = [];
+        window.privateVaultMemories = [];
         renderVaultGallery();
+        window.dispatchEvent(new CustomEvent("private-vault-updated"));
+        updateVaultModeUI();
       }
     });
   }
 
   async function initializeLocalVault() {
     vaultState.useFirebase = false;
+    vaultState.cloudSynced = false;
     const personSelect = el("vaultLocalPerson");
     if (personSelect) personSelect.value = vaultState.localPerson;
     updateVaultModeUI();
     updateVaultAuthUI();
     await loadLocalVault();
   }
+
+  let quickHeartUpload = false;
 
   function bindVaultEvents() {
     el("vaultLoginForm")?.addEventListener("submit", async (event) => {
@@ -1777,6 +1913,12 @@ window.addEventListener("DOMContentLoaded", boot);
     el("vaultCreateAccountBtn")?.addEventListener("click", createAccount);
     el("vaultLogoutBtn")?.addEventListener("click", signOut);
     el("vaultUploadBtn")?.addEventListener("click", handleVaultUpload);
+    el("addHeartPhotoBtn")?.addEventListener("click", () => {
+      const album = el("vaultAlbum");
+      if (album) album.value = "shared";
+      quickHeartUpload = true;
+      el("vaultPhotoFiles")?.click();
+    });
     el("vaultLocalPerson")?.addEventListener("change", (event) => {
       vaultState.localPerson = event.target.value === "Donnah" ? "Donnah" : "Michael";
       localStorage.setItem("coupleLocalPerson", vaultState.localPerson);
@@ -1788,9 +1930,16 @@ window.addEventListener("DOMContentLoaded", boot);
       showNotification("↻ MEMORY VAULT", "Your private photo gallery is up to date.");
     });
 
-    el("vaultPhotoFiles")?.addEventListener("change", () => {
+    el("vaultPhotoFiles")?.addEventListener("change", async () => {
       const files = getSelectedFiles();
       setText("vaultPhotoFileLabel", files.length ? `${files.length} photo${files.length === 1 ? "" : "s"} selected` : "Multiple JPG, PNG, WEBP or browser-compatible image files");
+      if (quickHeartUpload && files.length) {
+        quickHeartUpload = false;
+        if (el("vaultPhotoTitle") && !el("vaultPhotoTitle").value.trim()) {
+          el("vaultPhotoTitle").value = "A memory for our heart";
+        }
+        await handleVaultUpload();
+      }
     });
 
     document.querySelectorAll("[data-vault-filter]").forEach((tab) => {
@@ -1798,7 +1947,12 @@ window.addEventListener("DOMContentLoaded", boot);
     });
   }
 
-  window.addEventListener("beforeunload", clearObjectUrls);
+  window.openPrivateVaultViewerById = (id) => openVaultViewer(id);
+  window.getPrivateVaultMemories = () => [...vaultState.items];
+  window.addEventListener("beforeunload", () => {
+    vaultState.cloudUnsubscribe?.();
+    clearObjectUrls();
+  });
 
   window.addEventListener("DOMContentLoaded", async () => {
     bindVaultEvents();

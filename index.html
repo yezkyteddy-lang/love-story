@@ -233,7 +233,12 @@
 
           <div class="memory-heart-section">
             <div class="heart-made-title">♡ A HEART MADE OF MEMORIES ♡</div>
-            <div id="memoryHeart" class="memory-heart"></div>
+            <p class="heart-memory-note">Shared memories uploaded to <strong>♡ Our Memories</strong> can appear inside this living heart for both of you.</p>
+            <div class="memory-heart" id="memoryHeart" aria-label="Heart made from our shared memories"></div>
+            <div class="heart-upload-bar">
+              <button id="addHeartPhotoBtn" class="pink-btn" type="button">📸 ADD A PHOTO TO OUR HEART</button>
+              <small>Choose a picture, then it will be saved to <strong>Our Memories</strong> and appear here.</small>
+            </div>
           </div>
 
           <div class="horizontal-memory-stream" aria-label="Infinite memory stream">
@@ -253,8 +258,12 @@
             <div>
               <div class="memory-title">ONLY MICHAEL &amp; DONNAH</div>
               <p>Upload and keep our memories in three spaces: shared memories, Michael's photos, and Donnah's photos.</p>
+              <p class="vault-sync-help">For the same photos to appear on <strong>another phone</strong>, both of you must sign in to the same Firebase-backed private vault. Local Mode is device-only.</p>
             </div>
-            <div id="vaultSecurityBadge" class="vault-badge">🔐 LOCAL MODE</div>
+            <div class="vault-intro-actions">
+              <div id="vaultSecurityBadge" class="vault-badge">🔐 LOCAL MODE</div>
+              <a class="ghost-btn small" href="FIREBASE_SETUP.md" target="_blank" rel="noopener">☁️ CLOUD SETUP</a>
+            </div>
           </div>
 
           <div id="vaultAuthBox" class="vault-auth-box">
@@ -330,6 +339,8 @@
 
             <div id="vaultPhotoGrid" class="vault-photo-grid"></div>
           </div>
+
+          <div id="vaultCloudStatus" class="vault-cloud-status hidden" aria-live="polite"></div>
 
           <div id="vaultLocalNotice" class="vault-local-notice hidden">
             <strong>Private cloud sync is not configured yet.</strong>

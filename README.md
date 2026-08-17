@@ -61,3 +61,12 @@ The site now correctly hides the Firebase sign-in form when `mode: "local"`. Loc
 Local mode does **not** synchronize photos between Michael's phone and Donnah's phone and cannot provide true cross-device privacy by itself.
 
 For real shared private access from both devices, set `mode: "firebase"` in `firebase-config.js`, enter the two authorized email addresses, and follow `FIREBASE_SETUP.md` to configure Firebase Authentication, Firestore, and Storage rules.
+
+
+## Cross-device private memories
+
+- **Local Mode:** photos remain in the current browser/device.
+- **Firebase Mode:** Michael and Donnah sign in with the two authorized Firebase Authentication accounts. Uploaded photos go to Firebase Storage and metadata goes to Firestore, so both phones can see the same private albums. A real-time Firestore listener updates the gallery automatically.
+- Shared `Our Memories` uploads are automatically mirrored into the main rotating memory universe and the heart-shaped photo gallery. Michael-only and Donnah-only uploads stay in their respective album tabs.
+
+To make cross-device sync actually work, `firebase-config.js` and both Firebase rules files must be configured with your Firebase project and the two authorized emails. No website-only HTML/CSS/JS code can turn Local Mode into cross-device storage without a shared backend.

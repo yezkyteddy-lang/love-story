@@ -65,22 +65,38 @@ Open Storage → Rules and paste the contents of `storage.rules`.
 
 Replace the same two email placeholders there too.
 
-## 5. Use the website
+## 5. Put the updated files on GitHub Pages
 
-After deploying the files to GitHub Pages:
+Commit/push these project files to the repository that serves your GitHub Pages site:
 
-1. Open the site.
-2. Go to `♡ PRIVATE COUPLE PHOTO VAULT ♡`.
-3. Sign in with Michael's or Donnah's authorized account.
+- `index.html`
+- `style.css`
+- `script.js`
+- `firebase-config.js`
+- `firestore.rules` (for Firebase Console rules)
+- `storage.rules` (for Firebase Console rules)
+
+Do not put the two account passwords into the website files.
+
+## 6. Use the website on both phones
+
+After the GitHub Pages deployment finishes:
+
+1. Open the same website URL on Michael's phone.
+2. Open the same website URL on Donnah's phone.
+3. Both users sign in with their own authorized Firebase email/password account.
 4. Choose an album:
-   - Our Memories
-   - Michael
-   - Donnah
-5. Choose one or many photos.
-6. Add a title/caption.
-7. Click **UPLOAD MEMORIES**.
+   - `Our Memories` — shared and shown in the heart gallery.
+   - `Michael` — Michael's personal album.
+   - `Donnah` — Donnah's personal album.
+5. Upload one or many photos.
+6. New cloud photos are stored in Firebase Storage and their metadata is stored in Firestore.
 
-The photos are uploaded to Firebase Storage and their metadata is stored in Firestore.
+The vault now uses a real-time Firestore listener, so new uploads/deletes can appear on the other signed-in phone without needing a page rebuild.
+
+If the other phone still says **LOCAL MODE**, the deployed `firebase-config.js` is still in local mode or still contains placeholders.
+
+If sign-in says `auth/operation-not-allowed`, enable **Authentication → Sign-in method → Email/Password** in Firebase Console.
 
 ## Privacy behavior
 
