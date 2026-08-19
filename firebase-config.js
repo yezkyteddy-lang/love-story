@@ -1,19 +1,8 @@
-/*
-  PRIVATE COUPLE VAULT CONFIG
-
-  LOCAL MODE works immediately and keeps uploaded images in this browser only.
-  To synchronize private photos between Michael's phone and Donnah's phone,
-  create a Firebase project and change mode to "firebase" below.
-
-  IMPORTANT: The Firebase web config itself is not a secret. The real privacy
-  protection comes from Firebase Authentication + Firestore/Storage Security
-  Rules included with this project.
-*/
 window.COUPLE_CONFIG = {
-  mode: "local",
+  mode: "demo",
   allowedEmails: [
-    "MICHAEL_EMAIL_HERE",
-    "DONNAH_EMAIL_HERE"
+    "micheljetmaulas@gmail.com",
+    "donnabatchar@gmail.com"
   ],
   firebase: {
     apiKey: "YOUR_FIREBASE_API_KEY",

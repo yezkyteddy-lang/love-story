@@ -1,4 +1,98 @@
+document.addEventListener('DOMContentLoaded', () => {
+  document.body.classList.toggle('file-protocol', window.location.protocol === 'file:');
+});
+
 const relationshipStart = new Date("2026-08-07T00:00:00+08:00");
+
+// --- Global private access gate / notification / loader music ---
+window.__coupleAuthResolved = false;
+window.__loaderMinDone = false;
+window.__notificationChoiceMade = false;
+window.__ambientMusic = null;
+
+function revealPrivateSite() {
+  if (!window.__coupleAuthResolved || !window.__loaderMinDone) return;
+  document.body.classList.remove('auth-locked');
+  document.getElementById('loader')?.classList.add('hidden');
+  document.getElementById('pageAuthLoader')?.classList.add('hidden');
+  document.getElementById('loginModal')?.classList.add('hidden');
+  document.body.classList.remove('login-modal-open');
+  maybeAskNotificationPermission();
+}
+
+function markAuthResolved(ok) {
+  window.__coupleAuthResolved = Boolean(ok);
+  if (ok) revealPrivateSite();
+}
+
+function showLoaderLogin() {
+  const modal = document.getElementById('loginModal');
+  if (!modal) return;
+  modal.classList.remove('hidden');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('login-modal-open');
+  setTimeout(() => document.getElementById('globalLoginEmail')?.focus(), 120);
+}
+
+function maybeAskNotificationPermission() {
+  if (window.__notificationChoiceMade) return;
+  if (!('Notification' in window)) return;
+  const saved = localStorage.getItem('coupleNotificationPreference');
+  if (saved) return;
+  const card = document.getElementById('notificationPermissionCard');
+  if (card) card.classList.remove('hidden');
+}
+
+function setupNotificationPermissionUI() {
+  document.getElementById('enableNotificationsBtn')?.addEventListener('click', async () => {
+    window.__notificationChoiceMade = true;
+    try {
+      const result = await Notification.requestPermission();
+      localStorage.setItem('coupleNotificationPreference', result);
+      if (result === 'granted') showNotification('🔔 NOTIFICATIONS ON', 'You will receive love updates when this site is allowed to notify you.');
+    } catch (error) {
+      localStorage.setItem('coupleNotificationPreference', 'denied');
+    }
+    document.getElementById('notificationPermissionCard')?.classList.add('hidden');
+  });
+  document.getElementById('disableNotificationsBtn')?.addEventListener('click', () => {
+    window.__notificationChoiceMade = true;
+    localStorage.setItem('coupleNotificationPreference', 'dismissed');
+    document.getElementById('notificationPermissionCard')?.classList.add('hidden');
+  });
+}
+
+function setupAmbientMusic() {
+  const button = document.getElementById('loaderMusicToggle');
+  if (!button) return;
+  button.addEventListener('click', async () => {
+    try {
+      if (!window.__ambientMusic) {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const gain = ctx.createGain();
+        gain.gain.value = 0.025;
+        gain.connect(ctx.destination);
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.value = 261.63;
+        osc.connect(gain);
+        osc.start();
+        window.__ambientMusic = { ctx, gain, osc, active: true };
+      } else {
+        const m = window.__ambientMusic;
+        m.active = !m.active;
+        m.gain.gain.setTargetAtTime(m.active ? 0.025 : 0, m.ctx.currentTime, 0.18);
+      }
+      const active = window.__ambientMusic.active;
+      button.textContent = active ? '♫ MUSIC ON' : '♫ MUSIC OFF';
+      button.setAttribute('aria-pressed', String(active));
+    } catch {
+      button.textContent = '♫ MUSIC UNAVAILABLE';
+    }
+  });
+}
 
 const timelineData = [
   { label: "1st Monthsary", date: "2026-09-07", quote: "One month of us" },
@@ -897,12 +991,47 @@ function initializeEvents() {
     document.body.classList.toggle("nav-open", open);
   };
 
+  const navBackdrop = document.getElementById("navBackdrop");
+  const bottomMenuButton = document.getElementById("bottomMenuButton");
+
+  const setNavOpenEnhanced = (open) => {
+    setNavOpen(open);
+    navBackdrop?.classList.toggle("visible", open);
+    navBackdrop?.setAttribute("aria-hidden", String(!open));
+  };
+
   mobileNavToggle?.addEventListener("click", () => {
-    setNavOpen(!mainNav.classList.contains("open"));
+    setNavOpenEnhanced(!mainNav.classList.contains("open"));
   });
-  navClose?.addEventListener("click", () => setNavOpen(false));
-  document.querySelectorAll(".main-nav a").forEach((link) => {
-    link.addEventListener("click", () => setNavOpen(false));
+  navClose?.addEventListener("click", () => setNavOpenEnhanced(false));
+  bottomMenuButton?.addEventListener("click", () => setNavOpenEnhanced(true));
+  navBackdrop?.addEventListener("click", () => setNavOpenEnhanced(false));
+
+  const allNavLinks = document.querySelectorAll(".main-nav a[data-nav-section], .mobile-bottom-nav [data-nav-section]");
+  allNavLinks.forEach((link) => {
+    link.addEventListener("click", () => {
+      setNavOpenEnhanced(false);
+    });
+  });
+
+  const sections = Array.from(document.querySelectorAll("main section[id], aside[id], footer[id]"));
+  const updateActiveNav = (id) => {
+    document.querySelectorAll("[data-nav-section]").forEach((node) => {
+      node.classList.toggle("active", node.dataset.navSection === id);
+    });
+  };
+
+  if ("IntersectionObserver" in window && sections.length) {
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries.filter((entry) => entry.isIntersecting)
+        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+      if (visible?.target?.id) updateActiveNav(visible.target.id);
+    }, { rootMargin: "-18% 0px -58% 0px", threshold: [0.05, 0.2, 0.5] });
+    sections.forEach((section) => observer.observe(section));
+  }
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && mainNav?.classList.contains("open")) setNavOpenEnhanced(false);
   });
 
   document.getElementById("notificationsToggle")?.addEventListener("click", () => {
@@ -1225,6 +1354,10 @@ function updateDynamicUI() {
 }
 
 function boot() {
+  if (!localStorage.getItem("demoCoupleSession")) document.body.classList.add('auth-locked');
+  setupNotificationPermissionUI();
+  setupAmbientMusic();
+  document.getElementById('loaderLoginBtn')?.addEventListener('click', showLoaderLogin);
   displayDailyLoveMessage();
   renderTimeline();
   renderLetterSection();
@@ -1253,8 +1386,9 @@ function boot() {
   }, 1000);
 
   setTimeout(() => {
-    document.getElementById("loader")?.classList.add("hidden");
-  }, 2600);
+    window.__loaderMinDone = true;
+    revealPrivateSite();
+  }, 3600);
 }
 
 window.addEventListener("DOMContentLoaded", boot);
@@ -1269,6 +1403,14 @@ window.addEventListener("DOMContentLoaded", boot);
     mode: "local",
     allowedEmails: [],
     firebase: {}
+  };
+
+  // Demo/private mode credentials requested by the site owner.
+  // IMPORTANT: this is intentionally a client-side demo login, NOT real security.
+  // Anyone who can inspect the public JavaScript can discover these values.
+  const DEMO_ACCOUNTS = {
+    "micheljetmaulas@gmail.com": { password: "michaeljetmaulas143", name: "Michael", uid: "demo-michael" },
+    "donnabatchar@gmail.com": { password: "donnabatchar143", name: "Donnah", uid: "demo-donnah" }
   };
 
   function readSavedCloudConfig() {
@@ -1301,6 +1443,7 @@ window.addEventListener("DOMContentLoaded", boot);
     storage: null,
     auth: null,
     useFirebase: false,
+    demoMode: true,
     firebaseReady: false,
     cloudUnsubscribe: null,
     cloudSynced: false,
@@ -1826,13 +1969,28 @@ window.addEventListener("DOMContentLoaded", boot);
   }
 
   async function signIn() {
-    if (!vaultState.auth) return;
-    const email = el("vaultEmail")?.value.trim();
-    const password = el("vaultPassword")?.value;
+    const email = el("vaultEmail")?.value.trim().toLowerCase();
+    const password = el("vaultPassword")?.value || "";
     if (!email || !password) {
       showNotification("🔐 LOGIN REQUIRED", "Enter your email and password.");
       return;
     }
+    const demo = DEMO_ACCOUNTS[email];
+    if (vaultState.demoMode && demo) {
+      if (demo.password !== password) {
+        showNotification("⚠️ SIGN IN FAILED", "The email or password is incorrect.");
+        return;
+      }
+      vaultState.currentUser = { email, uid: demo.uid, displayName: demo.name };
+      localStorage.setItem("demoCoupleSession", JSON.stringify({ email, uid: demo.uid, name: demo.name }));
+      updateGlobalLoginButton();
+      updateVaultAuthUI();
+      markAuthResolved(true);
+      document.body.classList.remove("auth-locked");
+      showNotification("💗 WELCOME", `Welcome back, ${demo.name}.`);
+      return;
+    }
+    if (!vaultState.auth) return;
     if (!isAllowedEmail(email)) {
       showNotification("🔐 PRIVATE ACCESS", "That email is not one of the two authorized couple accounts.");
       return;
@@ -1866,10 +2024,129 @@ window.addEventListener("DOMContentLoaded", boot);
 
   async function signOut() {
     try {
+      if (vaultState.demoMode) {
+        localStorage.removeItem("demoCoupleSession");
+        vaultState.currentUser = null;
+        window.__coupleAuthResolved = false;
+        document.body.classList.add("auth-locked");
+        updateGlobalLoginButton();
+        updateVaultAuthUI();
+        showNotification("🔒 SIGNED OUT", "Your private pages are locked again.");
+        showLoaderLogin();
+        return;
+      }
       await vaultState.auth?.signOut();
     } catch (error) {
       showNotification("⚠️ SIGN OUT FAILED", firebaseFriendlyError(error));
     }
+  }
+
+
+  function setLoginModal(open) {
+    const modal = el("loginModal");
+    if (!modal) return;
+    modal.classList.toggle("hidden", !open);
+    document.body.classList.toggle("login-modal-open", open);
+    if (open) setTimeout(() => el("globalLoginEmail")?.focus(), 80);
+  }
+
+  function updateGlobalLoginButton() {
+    const btn = el("globalLoginBtn");
+    if (!btn) return;
+    if (vaultState.currentUser) {
+      const who = personNameFromEmail(vaultState.currentUser.email);
+      btn.innerHTML = `<span class="nav-icon">♡</span><span class="nav-label">${who}</span>`;
+      btn.setAttribute("aria-label", `Signed in as ${who}`);
+    } else {
+      btn.innerHTML = '<span class="nav-icon">🔐</span><span class="nav-label">Login</span>';
+      btn.setAttribute("aria-label", "Open private couple login");
+    }
+  }
+
+  function openGlobalLogin() {
+    if (vaultState.currentUser) {
+      const status = el("globalLoginStatus");
+      if (status) status.textContent = `Signed in as ${vaultState.currentUser.email}`;
+      setLoginModal(true);
+      return;
+    }
+    setLoginModal(true);
+  }
+
+  async function handleGlobalLoginSubmit(event) {
+    event.preventDefault();
+    const email = el("globalLoginEmail")?.value.trim().toLowerCase();
+    const password = el("globalLoginPassword")?.value || "";
+    const submit = el("globalLoginSubmit");
+    const status = el("globalLoginStatus");
+    if (!email || !password) {
+      if (status) status.textContent = "Enter your authorized email and password.";
+      return;
+    }
+    if (!isAllowedEmail(email)) {
+      if (status) status.textContent = "Only Michael and Donnah's authorized accounts can enter.";
+      return;
+    }
+    submit?.classList.add("is-loading");
+    if (status) status.textContent = "Verifying your private access…";
+    el("pageAuthLoader")?.classList.remove("hidden");
+    try {
+      if (vaultState.demoMode) {
+        const demo = DEMO_ACCOUNTS[email];
+        if (!demo || demo.password !== password) throw new Error("DEMO_INVALID_CREDENTIALS");
+        vaultState.currentUser = { email, uid: demo.uid, displayName: demo.name };
+        localStorage.setItem("demoCoupleSession", JSON.stringify({ email, uid: demo.uid, name: demo.name }));
+        markAuthResolved(true);
+        updateGlobalLoginButton();
+        updateVaultAuthUI();
+        document.body.classList.remove("auth-locked");
+        if (status) status.textContent = `Welcome, ${demo.name}. Your private universe is opening…`;
+        setTimeout(() => setLoginModal(false), 500);
+        return;
+      }
+      if (!vaultState.auth) throw new Error("AUTH_NOT_CONFIGURED");
+      await vaultState.auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+      await vaultState.auth.signInWithEmailAndPassword(email, password);
+      if (status) status.textContent = "Welcome back. Your private universe is loading…";
+      setTimeout(() => setLoginModal(false), 700);
+    } catch (error) {
+      if (error?.message === "DEMO_INVALID_CREDENTIALS") {
+        if (status) status.textContent = "The email or password is incorrect.";
+      } else if (error?.message === "AUTH_NOT_CONFIGURED") {
+        if (status) status.textContent = "Private login is not configured.";
+      } else {
+        if (status) status.textContent = firebaseFriendlyError(error);
+      }
+    } finally {
+      submit?.classList.remove("is-loading");
+      setTimeout(() => el("pageAuthLoader")?.classList.add("hidden"), 650);
+    }
+  }
+
+
+  function bindGlobalLogin() {
+    el("globalLoginBtn")?.addEventListener("click", openGlobalLogin);
+    el("loaderLoginBtn")?.addEventListener("click", showLoaderLogin);
+    document.querySelectorAll("[data-login-close]").forEach((node) => node.addEventListener("click", () => setLoginModal(false)));
+    document.querySelectorAll("[data-login-email]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const email = button.dataset.loginEmail || "";
+        const input = el("globalLoginEmail");
+        if (input) input.value = email;
+        document.querySelectorAll("[data-login-email]").forEach((b) => b.classList.remove("active"));
+        button.classList.add("active");
+        el("globalLoginPassword")?.focus();
+      });
+    });
+    el("globalLoginForm")?.addEventListener("submit", handleGlobalLoginSubmit);
+    el("loginCloudSetupBtn")?.addEventListener("click", () => {
+      setLoginModal(false);
+      openCloudSetup();
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") setLoginModal(false);
+    }, { once: false });
+    updateGlobalLoginButton();
   }
 
   async function initializeFirebaseVault() {
@@ -1882,6 +2159,7 @@ window.addEventListener("DOMContentLoaded", boot);
 
     if (!firebase.apps.length) firebase.initializeApp(config.firebase);
     vaultState.auth = firebase.auth();
+    await vaultState.auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
     vaultState.db = firebase.firestore();
     vaultState.storage = firebase.storage();
     vaultState.useFirebase = true;
@@ -1895,11 +2173,16 @@ window.addEventListener("DOMContentLoaded", boot);
         return;
       }
       vaultState.currentUser = user || null;
+      updateGlobalLoginButton();
       vaultState.cloudSynced = false;
+      if (user) markAuthResolved(true);
       updateVaultAuthUI();
       if (user) {
         await loadCloudVault();
       } else {
+        window.__coupleAuthResolved = false;
+        document.body.classList.add('auth-locked');
+        setTimeout(() => { if (!vaultState.currentUser) showLoaderLogin(); }, 700);
         vaultState.cloudUnsubscribe?.();
         vaultState.cloudUnsubscribe = null;
         vaultState.items = [];
@@ -1913,7 +2196,19 @@ window.addEventListener("DOMContentLoaded", boot);
 
   async function initializeLocalVault() {
     vaultState.useFirebase = false;
+    vaultState.demoMode = true;
     vaultState.cloudSynced = false;
+    const savedSession = localStorage.getItem("demoCoupleSession");
+    if (savedSession) {
+      try {
+        const session = JSON.parse(savedSession);
+        if (DEMO_ACCOUNTS[session.email]) {
+          vaultState.currentUser = { email: session.email, uid: session.uid, displayName: session.name };
+          markAuthResolved(true);
+          document.body.classList.remove("auth-locked");
+        }
+      } catch {}
+    }
     const personSelect = el("vaultLocalPerson");
     if (personSelect) personSelect.value = vaultState.localPerson;
     updateVaultModeUI();
@@ -2023,7 +2318,7 @@ window.addEventListener("DOMContentLoaded", boot);
       updateVaultAuthUI();
     });
     el("vaultRefreshBtn")?.addEventListener("click", async () => {
-      if (vaultState.useFirebase) await loadCloudVault();
+      if (vaultState.useFirebase) { await loadCloudVault(); updateGlobalLoginButton(); if (document.body?.dataset.sitePage === "home" && !vaultState.currentUser) setTimeout(openGlobalLogin, 900); }
       else await loadLocalVault();
       showNotification("↻ MEMORY VAULT", "Your private photo gallery is up to date.");
     });
@@ -2053,19 +2348,17 @@ window.addEventListener("DOMContentLoaded", boot);
   });
 
   window.addEventListener("DOMContentLoaded", async () => {
+    bindGlobalLogin();
     bindVaultEvents();
     try {
-      if (vaultState.mode === "firebase") {
-        await initializeFirebaseVault();
-      } else {
-        await initializeLocalVault();
-      }
+      await initializeFirebaseVault();
     } catch (error) {
-      vaultState.useFirebase = false;
-      updateVaultModeUI();
-      updateVaultAuthUI();
-      showNotification("☁️ CLOUD SETUP NEEDED", "Open CLOUD SETUP in the Private Couple Photo Vault, paste your Firebase Web App config, and reload.");
-      await loadLocalVault();
+      // Fall back to the requested client-side demo/private mode.
+      // This is NOT true cross-device authentication or cloud sync.
+      await initializeLocalVault();
+      setText('globalLoginStatus', 'Demo private mode: use the two authorized accounts.');
+      document.getElementById('loginConfigHint')?.classList.remove('is-warning');
+      if (!vaultState.currentUser) setTimeout(() => showLoaderLogin(), 450);
     }
   });
 })();
@@ -2098,3 +2391,148 @@ window.addEventListener("DOMContentLoaded", boot);
     if (e.key === "Escape") close();
   });
 })();
+
+
+/* ===== CINEMATIC NAVIGATION INTERACTIONS ===== */
+(() => {
+  const nav = document.querySelector('.main-nav');
+  const navProgress = document.querySelector('.nav-scroll-progress span');
+  const navLinks = Array.from(document.querySelectorAll('.main-nav .nav-link'));
+  const bottomLinks = Array.from(document.querySelectorAll('.mobile-bottom-nav .bottom-nav-item[data-nav-section]'));
+  if (!nav) return;
+
+  const spawnNavHearts = (element) => {
+    if (!element || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const rect = element.getBoundingClientRect();
+    const symbols = ['♥','♡','✦'];
+    const colors = ['', 'is-lavender', 'is-white'];
+    for (let i = 0; i < 6; i += 1) {
+      const particle = document.createElement('span');
+      particle.className = `nav-heart-particle ${colors[i % colors.length]}`;
+      particle.textContent = symbols[i % symbols.length];
+      particle.style.left = `${rect.left + rect.width / 2 + (Math.random() - 0.5) * rect.width * 0.35}px`;
+      particle.style.top = `${rect.top + rect.height / 2}px`;
+      particle.style.setProperty('--dx', `${(Math.random() - 0.5) * 95}px`);
+      particle.style.setProperty('--dy', `${-35 - Math.random() * 75}px`);
+      particle.style.setProperty('--rot', `${(Math.random() - 0.5) * 80}deg`);
+      particle.style.animationDelay = `${i * 35}ms`;
+      document.body.appendChild(particle);
+      window.setTimeout(() => particle.remove(), 1250);
+    }
+  };
+
+  const createRipple = (element, event) => {
+    if (!element || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const rect = element.getBoundingClientRect();
+    const ripple = document.createElement('span');
+    ripple.className = 'nav-ripple';
+    const x = event?.clientX ? event.clientX - rect.left : rect.width / 2;
+    const y = event?.clientY ? event.clientY - rect.top : rect.height / 2;
+    ripple.style.left = `${x}px`;
+    ripple.style.top = `${y}px`;
+    element.appendChild(ripple);
+    window.setTimeout(() => ripple.remove(), 750);
+  };
+
+  [...navLinks, ...bottomLinks].forEach((link) => {
+    link.addEventListener('click', (event) => {
+      createRipple(link, event);
+      spawnNavHearts(link);
+    });
+  });
+
+  const updateProgress = () => {
+    const doc = document.documentElement;
+    const scrollable = doc.scrollHeight - window.innerHeight;
+    const progress = scrollable > 0 ? Math.min(100, Math.max(0, (window.scrollY / scrollable) * 100)) : 0;
+    nav?.style.setProperty('--nav-progress', `${progress}%`);
+    if (navProgress) navProgress.style.width = `${progress}%`;
+  };
+  window.addEventListener('scroll', updateProgress, { passive: true });
+  window.addEventListener('resize', updateProgress, { passive: true });
+  updateProgress();
+
+  if (window.matchMedia('(hover:hover) and (pointer:fine)').matches) {
+    navLinks.forEach((link) => {
+      link.addEventListener('pointermove', (event) => {
+        const rect = link.getBoundingClientRect();
+        const x = (event.clientX - rect.left) / rect.width - 0.5;
+        const y = (event.clientY - rect.top) / rect.height - 0.5;
+        link.style.transform = `perspective(420px) rotateX(${(-y * 4).toFixed(2)}deg) rotateY(${(x * 5).toFixed(2)}deg) translateY(-2px)`;
+      });
+      link.addEventListener('pointerleave', () => {
+        link.style.transform = '';
+      });
+    });
+  }
+
+  const observer = 'IntersectionObserver' in window ? new IntersectionObserver((entries) => {
+    const visible = entries.filter((entry) => entry.isIntersecting)
+      .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+    if (!visible?.target?.id) return;
+    const id = visible.target.id;
+    document.querySelectorAll('[data-nav-section]').forEach((node) => {
+      node.classList.toggle('active', node.dataset.navSection === id);
+    });
+    const active = document.querySelector(`.main-nav .nav-link[data-nav-section="${CSS.escape(id)}"]`);
+    active?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  }, { rootMargin: '-15% 0px -65% 0px', threshold: [0.1, 0.3, 0.6] }) : null;
+
+  document.querySelectorAll('main section[id], aside[id], footer[id]').forEach((section) => observer?.observe(section));
+
+  const menuButton = document.getElementById('bottomMenuButton');
+  menuButton?.addEventListener('click', () => {
+    window.setTimeout(() => {
+      const top = document.querySelector('.main-nav');
+      if (top) spawnNavHearts(top.querySelector('.nav-brand-heart'));
+    }, 120);
+  });
+})();
+
+
+/* ===== MULTI-PAGE SITE NAVIGATION ===== */
+(() => {
+  const page = document.body?.dataset?.sitePage || 'home';
+  const labels = {
+    home: ['Home', 'Your love dashboard', 'A beautiful home for everything about us.'],
+    michael: ['Michael', "Michael's Space", 'A dedicated page for Michael, his profile, growth, and memories.'],
+    donnah: ['Donnah', "Donnah's Space", 'A dedicated page for Donnah, her profile, story, and memories.'],
+    monthsaries: ['Monthsaries', 'Our Monthsary Timeline', 'Every 7th is another chapter of us.'],
+    letters: ['Letters', 'Our Love Letters', 'Letters written for every chapter, with replies and memories.'],
+    journey: ['Journey', 'Our Journey', 'The story behind the people, the relationship, and what comes next.'],
+    memories: ['Memories', 'Our Memory Universe', 'Photos, memories, the heart gallery, and our private vault.'],
+    'love-wall': ['Love Wall', 'Our Little Universe', 'Notes, tiny memories, messages, and future moments.'],
+    settings: ['Settings', 'Love Settings', 'Themes, privacy notes, and app information.']
+  };
+  const meta = labels[page] || labels.home;
+  const banner = document.createElement('div');
+  banner.className = 'page-switcher-banner glass';
+  banner.innerHTML = `
+    <div>
+      <div class="page-kicker">♡ MICHAEL × DONNAH • ${meta[0].toUpperCase()} ♡</div>
+      <div class="page-title">${meta[1]}</div>
+    </div>
+    <div class="page-copy">${meta[2]}</div>
+  `;
+  const nav = document.querySelector('.main-nav');
+  if (nav) nav.insertAdjacentElement('afterend', banner);
+
+  document.querySelectorAll('[data-nav-page]').forEach((link) => {
+    link.classList.toggle('active', link.dataset.navPage === page);
+    link.addEventListener('click', () => {
+      link.classList.add('nav-page-leaving');
+    });
+  });
+
+  // Highlight current page by pathname as a fallback for direct file navigation.
+  const current = location.pathname.split('/').pop() || 'index.html';
+  const currentMap = {
+    'index.html':'home','michael.html':'michael','donnah.html':'donnah','monthsaries.html':'monthsaries',
+    'letters.html':'letters','journey.html':'journey','memories.html':'memories','love-wall.html':'love-wall','settings.html':'settings'
+  };
+  const currentPage = currentMap[current] || page;
+  document.querySelectorAll('[data-nav-page]').forEach((node) => node.classList.toggle('active', node.dataset.navPage === currentPage));
+})();
+
+
+document.getElementById("toggleGlobalPassword")?.addEventListener("click", toggleGlobalPasswordVisibility);

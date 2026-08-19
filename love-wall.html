@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Michael & Donnah | One Shared Website</title>
+  <title>Michael & Donnah | Love-Wall</title>
   <meta name="description" content="A unified personal portfolio, profile, memories, monthsary timeline, and shared story for Michael and Donnah." />
   <meta name="theme-color" content="#ff7db8" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
-<body data-site-page="home">
+<body class="site-subpage page-love-wall" data-site-page="love-wall">
   <div id="loader" class="loader" aria-live="polite">
     <div class="loader-core">
       <div class="heart-glow"></div>
@@ -628,12 +628,15 @@
       </div>
       <form id="globalLoginForm" class="global-login-form" autocomplete="on">
         <label>Email<input id="globalLoginEmail" type="email" autocomplete="email" placeholder="Choose your account" required></label>
-        <label>Password<div class="password-field-wrap"><input id="globalLoginPassword" type="password" autocomplete="current-password" placeholder="Enter your password" required><button id="toggleGlobalPassword" class="password-eye-btn" type="button" aria-label="Show password" aria-pressed="false">👁</button></div></label>
+        <label>Password<input id="globalLoginPassword" type="password" autocomplete="current-password" placeholder="Enter your Firebase password" required></label>
         <div id="globalLoginStatus" class="login-status" aria-live="polite"></div>
         <button id="globalLoginSubmit" class="pink-btn login-submit" type="submit"><span class="login-btn-label">SIGN IN TO OUR UNIVERSE</span><span class="login-spinner" aria-hidden="true"></span></button>
       </form>
-      <div id="loginConfigHint" class="login-config-hint">Demo private login is enabled for Michael and Donnah. Enter the exact account email and password. NOTE: this browser-only demo is not real cloud security or cross-device sync.</div>
-      <div class="login-footer-note">Demo mode credentials are included in this front-end build because you requested a simulated login. Do not use these credentials for a real public site.</div>
+      <div class="login-setup-row">
+        <button id="loginCloudSetupBtn" class="ghost-btn login-setup-btn" type="button">☁️ FIRST TIME? SET UP PRIVATE CLOUD</button>
+      </div>
+      <div id="loginConfigHint" class="login-config-hint">Private access uses Firebase Authentication. Configure your Firebase Web App once, then Michael and Donnah can sign in from any device.</div>
+      <div class="login-footer-note">Your password is sent directly to Firebase Authentication; it is not stored in this website's source code.</div>
     </div>
   </div>
   <div id="pageAuthLoader" class="auth-loader hidden" aria-live="polite" aria-busy="true">
