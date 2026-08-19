@@ -1,50 +1,39 @@
-# Michael & Donnah — Combined Website
+# Automatic APK + GitHub Release
 
-This folder combines the two supplied projects into one static website.
+This workflow does both:
 
-## Included
-- Michael Jet Maulas personal portfolio/profile
-- Donnah Atasha A. Batchar dedicated profile
-- Shared relationship timeline
-- Monthsary timeline and countdowns
-- Love letters and replies from the original mobile web app
-- Journey, values, and gallery sections from the portfolio
-- Memories / Love Wall
-- Private photo vault with the original Local Mode + optional Firebase Cloud Mode
-- Night mode, notifications, counters, and responsive mobile navigation
-- Both profile images (`mj.png` and `donnah.png`)
+1. Uploads the APK as a GitHub Actions artifact.
+2. Creates a GitHub Release automatically and attaches the APK.
 
-## Run locally
-Open `index.html` in a browser, or use VS Code Live Server.
+## Use
 
-## Firebase
-The combined site keeps the original `firebase-config.js`, `firestore.rules`, and `storage.rules`.
-It starts in Local Mode. Use the site's Cloud Setup only if you want private cross-device synchronization and have configured Firebase Authentication, Firestore, and Storage.
+Replace:
 
-## Relationship date
-The original project uses August 7, 2026 as the relationship start date.
+`.github/workflows/build-apk.yml`
 
+in the `love-story` repository with this version.
 
-## Private Login
+Then run:
 
-The site includes an animated login modal and Firebase Authentication integration for:
-- Michael: micheljetmaulas@gmail.com
-- Donnah: donnabatchar@gmail.com
+**GitHub -> Actions -> Build Android APK -> Run workflow**
 
-Passwords are intentionally NOT hard-coded into the HTML/JavaScript. Create these two Firebase Authentication users using the passwords you choose, then sign in through the animated login screen. Firebase Auth persistence keeps a signed-in session across pages on the same device. Firestore/Storage rules restrict access to the two authorized email accounts, enabling cross-device private-memory sync when the same Firebase project is configured.
+After success:
 
-Before cloud login can work, replace the Firebase placeholders in `firebase-config.js` with the Web App config from your Firebase project, enable Email/Password Authentication, Firestore, and Storage, and publish the included rules.
+**Actions -> successful run -> Artifacts**
+- `Michael-Donnah-Love-Story-APK`
 
+And:
 
-## Local testing
+**Repository -> Releases**
+- a release such as `apk-v12`
+- asset `Michael-Donnah-Love-Story.apk`
 
-Do not double-click index.html for cloud testing. Use RUN_LOCAL.bat or VS Code Live Server so the site runs over http://127.0.0.1:5500. Direct file mode is still supported for viewing, but Firebase cross-device sync requires the hosted HTTPS site and a configured Firebase project.
+No manual tag is required for this workflow.
 
+## Notes
 
-## IMPORTANT: run the private site correctly
+The APK is a debug/testing APK, not a Google Play signed production build.
 
-Do not open the HTML by double-clicking it as `file:///...` for Firebase authentication. Use VS Code Live Server or GitHub Pages HTTPS.
+The workflow uses Java 21 because the generated Capacitor Android project requires a Java 21 compiler.
 
-For local testing: open `index.html` with Live Server.
-
-The first-time login screen now has a **SET UP PRIVATE CLOUD** button. Enter the Firebase Web App config and the two authorized email addresses, save, reload, then sign in. Passwords are created and managed by Firebase Authentication and are not stored in the site source.
+iOS builds require macOS/Xcode and are separate from this workflow.
