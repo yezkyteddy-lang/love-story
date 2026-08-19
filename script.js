@@ -2083,36 +2083,6 @@ window.addEventListener("DOMContentLoaded", boot);
       if (status) status.textContent = "Enter your authorized email and password.";
       return;
     }
-    // In demo mode, the two hard-coded demo accounts are the only authorized accounts.
-    // Do this check before Firebase allow-list validation so the public demo can work
-    // even when firebase-config.js still contains placeholders.
-    if (vaultState.demoMode) {
-      const demo = DEMO_ACCOUNTS[email];
-      if (!demo) {
-        if (status) status.textContent = "Only Michael and Donnah can enter this private demo.";
-        return;
-      }
-      if (demo.password !== password) {
-        if (status) status.textContent = "The email or password is incorrect.";
-        return;
-      }
-      submit?.classList.add("is-loading");
-      if (status) status.textContent = `Welcome, ${demo.name}. Opening your private universe…`;
-      el("pageAuthLoader")?.classList.remove("hidden");
-      vaultState.currentUser = { email, uid: demo.uid, displayName: demo.name };
-      localStorage.setItem("demoCoupleSession", JSON.stringify({ email, uid: demo.uid, name: demo.name }));
-      markAuthResolved(true);
-      updateGlobalLoginButton();
-      updateVaultAuthUI();
-      document.body.classList.remove("auth-locked");
-      setTimeout(() => {
-        setLoginModal(false);
-        el("pageAuthLoader")?.classList.add("hidden");
-        submit?.classList.remove("is-loading");
-      }, 700);
-      return;
-    }
-
     if (!isAllowedEmail(email)) {
       if (status) status.textContent = "Only Michael and Donnah's authorized accounts can enter.";
       return;
