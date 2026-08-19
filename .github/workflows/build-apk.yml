@@ -1,0 +1,134 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - master
+
+permissions:
+  contents: write
+
+concurrency:
+  group: android-apk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-apk:
+    name: Build Michael & Donnah APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout love-story
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Verify Java
+        shell: bash
+        run: |
+          set -euo pipefail
+          java -version
+          javac -version
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+
+      - name: Create temporary Capacitor project
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          rm -rf mobile-build artifacts
+          mkdir -p mobile-build/www artifacts/android
+
+          rsync -a \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='mobile-build/' \
+            --exclude='android/' \
+            --exclude='node_modules/' \
+            ./ mobile-build/www/
+
+          cd mobile-build
+
+          npm init -y
+          npm install @capacitor/core @capacitor/android
+          npm install --save-dev @capacitor/cli typescript
+
+          rm -f capacitor.config.ts
+
+          cat > capacitor.config.json <<'EOF'
+          {
+            "appId": "com.michael.donnah.lovestory",
+            "appName": "Michael & Donnah Love Story",
+            "webDir": "www"
+          }
+          EOF
+
+          npx cap add android
+          npx cap sync android
+
+      - name: Build universal debug APK
+        working-directory: mobile-build/android
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x ./gradlew
+          ./gradlew --no-daemon --stacktrace :app:assembleDebug
+
+      - name: Find and copy APK
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo "Searching for generated APK files..."
+          find mobile-build/android/app/build/outputs -type f -name "*.apk" -print
+
+          APK_PATH="$(find mobile-build/android/app/build/outputs/apk/debug -maxdepth 1 -type f -name '*.apk' -print -quit)"
+
+          if [ -z "$APK_PATH" ]; then
+            echo "::error::No APK was generated."
+            exit 1
+          fi
+
+          cp "$APK_PATH" "artifacts/android/Michael-Donnah-Love-Story.apk"
+
+          echo "APK ready:"
+          ls -lh "artifacts/android/Michael-Donnah-Love-Story.apk"
+
+      - name: Upload APK as Actions artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Michael-Donnah-Love-Story-APK
+          path: artifacts/android/Michael-Donnah-Love-Story.apk
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Publish APK as GitHub Release
+        if: success()
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: "apk-v${{ github.run_number }}"
+          target_commitish: ${{ github.sha }}
+          name: "Michael & Donnah Love Story APK v${{ github.run_number }}"
+          body: |
+            💗 Michael & Donnah Love Story
+
+            Android APK build from GitHub Actions.
+
+            Download the APK below and install it on an Android device.
+          files: artifacts/android/Michael-Donnah-Love-Story.apk
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
