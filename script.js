@@ -2069,3 +2069,32 @@ window.addEventListener("DOMContentLoaded", boot);
     }
   });
 })();
+
+/* ===== Unified profile lightbox ===== */
+(() => {
+  const modal = document.getElementById("profileLightbox");
+  const image = document.getElementById("profileLightboxImage");
+  const caption = document.getElementById("profileLightboxCaption");
+  const close = () => {
+    if (!modal) return;
+    modal.classList.add("hidden");
+    modal.setAttribute("aria-hidden","true");
+    document.body.style.overflow = "";
+  };
+  document.querySelectorAll("[data-profile-lightbox]").forEach((node) => {
+    node.addEventListener("click", () => {
+      if (!modal || !image) return;
+      image.src = node.currentSrc || node.src;
+      image.alt = node.alt || "";
+      if (caption) caption.textContent = node.dataset.profileLightbox || node.alt || "";
+      modal.classList.remove("hidden");
+      modal.setAttribute("aria-hidden","false");
+      document.body.style.overflow = "hidden";
+    });
+  });
+  document.getElementById("profileLightboxClose")?.addEventListener("click", close);
+  modal?.querySelector(".profile-lightbox-backdrop")?.addEventListener("click", close);
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") close();
+  });
+})();

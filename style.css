@@ -2985,3 +2985,69 @@ body.night-mode .count-box .label {
     width: 100%;
   }
 }
+
+/* ===== Unified portfolio layer ===== */
+.unified-hero-actions{display:flex;gap:.65rem;flex-wrap:wrap;margin-top:1rem}
+.unified-section{padding:clamp(2.2rem,5vw,4.8rem) clamp(1rem,3vw,2rem);margin-top:1rem;border-radius:1.5rem;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.35);box-shadow:0 20px 50px rgba(82,28,58,.08);backdrop-filter:blur(16px)}
+.soft-section{background:rgba(255,255,255,.18)}
+.section-heading-unified{max-width:760px;margin:0 auto 2rem}
+.section-heading-unified.centered{text-align:center}
+.section-heading-unified h2{font-family:"Cormorant Garamond",serif;font-size:clamp(2rem,5vw,3.8rem);line-height:1.05;margin:.35rem 0 .8rem}
+.section-heading-unified h2 span,.profile-card-copy h2 span{color:var(--pink-strong)}
+.section-heading-unified p{color:var(--text-soft);margin:0}
+.profile-pair{display:grid;gap:1rem}
+.unified-profile-card{display:grid;grid-template-columns:minmax(0,.75fr) minmax(0,1.25fr);gap:1.2rem;align-items:center;padding:1rem;border-radius:1.4rem;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.4)}
+.unified-profile-card.reverse{grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr)}
+.unified-profile-card.reverse .profile-image-wrap{order:2}
+.profile-image-wrap{overflow:hidden;border-radius:1.2rem;aspect-ratio:1/1;background:rgba(255,255,255,.2)}
+.profile-image{width:100%;height:100%;object-fit:cover;cursor:zoom-in;transition:transform .45s ease}
+.profile-image:hover{transform:scale(1.03)}
+.profile-card-copy{padding:1rem}
+.profile-card-copy h2{font-family:"Cormorant Garamond",serif;font-size:clamp(2rem,5vw,3.4rem);line-height:1.05;margin:.35rem 0 .8rem}
+.profile-card-copy p{color:var(--text-soft);margin-bottom:1rem}
+.profile-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.55rem;margin:1rem 0}
+.profile-facts>div{padding:.7rem;border-radius:1rem;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25)}
+.profile-facts small,.info-grid-unified small,.journey-grid-unified small{display:block;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;opacity:.7}
+.profile-facts b{display:block;font-size:.82rem;margin-top:.15rem}
+.info-grid-unified{display:grid;gap:.8rem}
+.info-grid-unified.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.info-grid-unified article{padding:1.2rem;border-radius:1.2rem;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3)}
+.info-grid-unified article>span{display:grid;place-items:center;width:2.7rem;height:2.7rem;border-radius:.9rem;background:rgba(255,105,175,.13);color:var(--pink-strong);font-size:1.2rem;margin-bottom:.8rem}
+.info-grid-unified h3,.journey-grid-unified h3,.values-grid-unified h3{margin:.2rem 0 .4rem;font-family:"Cormorant Garamond",serif;font-size:1.7rem}
+.info-grid-unified p,.journey-grid-unified p,.values-grid-unified p{color:var(--text-soft);margin:0}
+.journey-grid-unified{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem}
+.journey-grid-unified article{padding:1.2rem;border-left:3px solid var(--pink);background:rgba(255,255,255,.12);border-radius:0 1rem 1rem 0}
+.journey-grid-unified article>b,.values-grid-unified article>b{color:var(--pink-strong);font-size:1.1rem}
+.values-grid-unified{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.8rem}
+.values-grid-unified article{padding:1.2rem;border-radius:1.2rem;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28)}
+.gallery-grid-unified{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.8rem}
+.gallery-grid-unified figure{margin:0;overflow:hidden;border-radius:1.2rem;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3)}
+.gallery-grid-unified img{width:100%;aspect-ratio:4/3;object-fit:cover;cursor:zoom-in}
+.gallery-grid-unified figcaption{padding:.8rem 1rem;display:grid;gap:.15rem}
+.gallery-grid-unified figcaption small{color:var(--text-soft)}
+.gallery-placeholder-unified{display:grid;min-height:220px;place-items:center;text-align:center;background:linear-gradient(135deg,rgba(255,120,180,.18),rgba(184,141,255,.18))}
+.gallery-placeholder-unified>div{font-size:3rem;color:var(--pink-strong)}
+.relationship-unified{background:linear-gradient(135deg,rgba(255,120,180,.15),rgba(184,141,255,.13))}
+.couple-strip-unified{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:1rem;max-width:700px;margin:auto;text-align:center}
+.couple-strip-unified div{display:grid;justify-items:center;gap:.15rem}
+.couple-strip-unified img{width:120px;height:120px;object-fit:cover;border-radius:50%;border:4px solid rgba(255,255,255,.65);box-shadow:0 15px 35px rgba(82,28,58,.15);cursor:zoom-in}
+.couple-strip-unified strong{font-size:2.4rem;color:var(--pink-strong)}
+.couple-strip-unified small{color:var(--text-soft)}
+.relationship-note-unified{margin:1.2rem auto 0;max-width:700px;padding:1rem 1.2rem;border-radius:1rem;background:rgba(255,255,255,.14);display:flex;gap:.8rem;align-items:center}
+.relationship-note-unified span{color:var(--text-soft)}
+.profile-lightbox{position:fixed;inset:0;z-index:2000;display:grid;place-items:center;padding:1rem}
+.profile-lightbox.hidden{display:none}
+.profile-lightbox-backdrop{position:absolute;inset:0;background:rgba(20,10,22,.78);backdrop-filter:blur(10px)}
+.profile-lightbox-panel{position:relative;z-index:1;max-width:min(92vw,900px);max-height:92vh;padding:1rem;border-radius:1.4rem;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.35);box-shadow:0 25px 80px rgba(0,0,0,.4)}
+.profile-lightbox-panel>img{max-width:85vw;max-height:76vh;width:auto;height:auto;object-fit:contain;border-radius:1rem}
+.profile-lightbox-panel p{margin:.7rem .2rem 0;text-align:center;color:#fff}
+#profileLightboxClose{position:absolute;right:.6rem;top:.6rem;z-index:2;background:rgba(0,0,0,.35);color:#fff}
+@media (max-width:850px){
+  .unified-profile-card,.unified-profile-card.reverse{grid-template-columns:1fr}
+  .unified-profile-card.reverse .profile-image-wrap{order:0}
+  .profile-facts,.info-grid-unified.three,.values-grid-unified,.gallery-grid-unified{grid-template-columns:1fr}
+  .journey-grid-unified{grid-template-columns:1fr}
+  .couple-strip-unified{grid-template-columns:1fr}
+  .couple-strip-unified strong{transform:rotate(90deg)}
+  .relationship-note-unified{align-items:flex-start;flex-direction:column}
+}

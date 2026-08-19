@@ -1,27 +1,25 @@
-# Michael × Donnah Android APK workflow v4
+# Michael & Donnah — Combined Website
 
-This version fixes the current build failure:
+This folder combines the two supplied projects into one static website.
 
-`invalid source release: 21`
+## Included
+- Michael Jet Maulas personal portfolio/profile
+- Donnah Atasha A. Batchar dedicated profile
+- Shared relationship timeline
+- Monthsary timeline and countdowns
+- Love letters and replies from the original mobile web app
+- Journey, values, and gallery sections from the portfolio
+- Memories / Love Wall
+- Private photo vault with the original Local Mode + optional Firebase Cloud Mode
+- Night mode, notifications, counters, and responsive mobile navigation
+- Both profile images (`mj.png` and `donnah.png`)
 
-Cause: the generated Capacitor Android project requires Java 21 while the workflow was using Java 17.
+## Run locally
+Open `index.html` in a browser, or use VS Code Live Server.
 
-This workflow now uses Java 21 and verifies both `java` and `javac` before building.
+## Firebase
+The combined site keeps the original `firebase-config.js`, `firestore.rules`, and `storage.rules`.
+It starts in Local Mode. Use the site's Cloud Setup only if you want private cross-device synchronization and have configured Firebase Authentication, Firestore, and Storage.
 
-It also keeps the earlier fixes:
-- no npm cache dependency path before the temporary lockfile exists
-- no premature Gradle cache
-- explicit TypeScript installation
-- JSON Capacitor config
-- Android SDK setup
-- APK artifact upload
-- optional GitHub Release on version tags
-
-Run:
-GitHub -> Actions -> Build Android APK -> Run workflow
-
-Expected artifact:
-`michael-donnah-android-apk`
-
-Expected APK:
-`Michael-Donnah-Love-Story-debug.apk`
+## Relationship date
+The original project uses August 7, 2026 as the relationship start date.
